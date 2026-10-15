@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.71.07.1003",
+  "kota": "Kota Adm. Jakarta Pusat",
+  "kecamatan": "Tanah Abang",
+  "kelurahan": "Karet Tengsin",
+  "latitude": -6.2070666249,
+  "longitude": 106.8165515144,
+  "precipitation": 0.0,
+  "temperature": 29.0,
+  "humidity": 58.0,
+  "windSpeed": 3.9,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T21:00:00",
+  "is_cached": false
+}

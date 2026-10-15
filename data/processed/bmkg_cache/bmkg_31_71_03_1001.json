@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.71.03.1001",
+  "kota": "Kota Adm. Jakarta Pusat",
+  "kecamatan": "Kemayoran",
+  "kelurahan": "Kemayoran",
+  "latitude": -6.1647214778,
+  "longitude": 106.8453837867,
+  "precipitation": 0.0,
+  "temperature": 29.0,
+  "humidity": 60.0,
+  "windSpeed": 4.5,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T21:00:00",
+  "is_cached": false
+}

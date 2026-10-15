@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.75.06.1006",
+  "kota": "Kota Adm. Jakarta Timur",
+  "kecamatan": "Cakung",
+  "kelurahan": "Ujung Menteng",
+  "latitude": -6.186276045,
+  "longitude": 106.9633448127,
+  "precipitation": 0.0,
+  "temperature": 28.0,
+  "humidity": 67.0,
+  "windSpeed": 4.2,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}

@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.74.04.1005",
+  "kota": "Kota Adm. Jakarta Selatan",
+  "kecamatan": "Pasar Minggu",
+  "kelurahan": "Pejaten Timur",
+  "latitude": -6.2801614065,
+  "longitude": 106.8482823108,
+  "precipitation": 0.0,
+  "temperature": 28.0,
+  "humidity": 63.0,
+  "windSpeed": 3.4,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}
