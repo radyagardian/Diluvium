@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.73.08.1001",
+  "kota": "Kota Adm. Jakarta Barat",
+  "kecamatan": "Kembangan",
+  "kelurahan": "Kembangan Utara",
+  "latitude": -6.1723239844,
+  "longitude": 106.7425116005,
+  "precipitation": 0.0,
+  "temperature": 28.0,
+  "humidity": 64.0,
+  "windSpeed": 3.9,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}

@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.74.07.1002",
+  "kota": "Kota Adm. Jakarta Selatan",
+  "kecamatan": "Kebayoran Baru",
+  "kelurahan": "Gunung",
+  "latitude": -6.2359438866,
+  "longitude": 106.7927751267,
+  "precipitation": 0.0,
+  "temperature": 29.0,
+  "humidity": 60.0,
+  "windSpeed": 3.9,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}

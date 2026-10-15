@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.74.01.1004",
+  "kota": "Kota Adm. Jakarta Selatan",
+  "kecamatan": "Tebet",
+  "kelurahan": "Kebon Baru",
+  "latitude": -6.2337098463,
+  "longitude": 106.8616315453,
+  "precipitation": 0.0,
+  "temperature": 29.0,
+  "humidity": 62.0,
+  "windSpeed": 4.5,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}

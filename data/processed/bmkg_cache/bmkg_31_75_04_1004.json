@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.75.04.1004",
+  "kota": "Kota Adm. Jakarta Timur",
+  "kecamatan": "Kramatjati",
+  "kelurahan": "Batu Ampar",
+  "latitude": -6.2791007105,
+  "longitude": 106.8610525488,
+  "precipitation": 0.0,
+  "temperature": 28.0,
+  "humidity": 63.0,
+  "windSpeed": 3.4,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}

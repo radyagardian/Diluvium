@@ -1,0 +1,15 @@
+{
+  "adm4_code": "31.73.02.1002",
+  "kota": "Kota Adm. Jakarta Barat",
+  "kecamatan": "Grogol Petamburan",
+  "kelurahan": "Tanjung Duren Utara",
+  "latitude": -6.1728186511,
+  "longitude": 106.7832724594,
+  "precipitation": 0.0,
+  "temperature": 29.0,
+  "humidity": 62.0,
+  "windSpeed": 3.9,
+  "weather_desc": "Partly Cloudy",
+  "timestamp": "2026-10-15T22:00:00",
+  "is_cached": false
+}
