@@ -7,9 +7,9 @@
   "longitude": 106.9036071514,
   "precipitation": 0.0,
   "temperature": 29.0,
-  "humidity": 60.0,
-  "windSpeed": 4.5,
+  "humidity": 74.0,
+  "windSpeed": 5.1,
   "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-15T21:00:00",
+  "timestamp": "2026-10-30T15:00:00",
   "is_cached": false
 }

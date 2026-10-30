@@ -43,7 +43,7 @@ class BMKGClient:
         self.base_backoff = base_backoff
         self.timeout = timeout
         self.semaphore = asyncio.Semaphore(BMKG_MAX_CONCURRENT_REQUESTS)
-        # Polite User-Agent header to comply with government API Terms of Service (Section 2.3.4)
+        # User-Agent header complying with government API Terms of Service (Section 2.3.4)
         self.headers = {
             "User-Agent": "Diluvium-EWS/1.0 (Universitas Indonesia; Electrical Engineering Project)",
             "Accept": "application/json",
@@ -112,7 +112,7 @@ class BMKGClient:
         if not all_forecasts:
             raise ValueError(f"No valid forecast time slots found for adm4={adm4_code}")
 
-        # Select the forecast slot closest to the current local time
+        # Select the forecast slot closest to current local time
         now = datetime.now()
         selected_slot = all_forecasts[0]
         min_diff = float("inf")
@@ -131,7 +131,7 @@ class BMKGClient:
 
         # Extract weather metrics with safe fallback imputation:
         # tp = Total Precipitation (mm), t = Temperature (°C),
-        # hu = Humidity (%), ws = Wind Speed (km/h), weather_desc_en / weather_desc = Condition
+        # hu = Humidity (%), ws = Wind Speed (km/h)
         precipitation = float(selected_slot.get("tp", 0.0) or 0.0)
         temperature = float(selected_slot.get("t", 28.0) or 28.0)
         humidity = float(selected_slot.get("hu", 75.0) or 75.0)
@@ -245,21 +245,28 @@ class BMKGClient:
 
 
 # =========================================================
-# CLI Execution / Quick Local Test:
+# CLI Execution / General Jakarta Test:
 # python -m src.ingestion.bmkg_client
 # =========================================================
 if __name__ == "__main__":
     async def run_test():
         client = BMKGClient()
 
-        print("=== 1. Single Sub-District Query Test (Kemayoran - 31.71.03.1001) ===")
-        single = await client.fetch_weather_by_adm4("31.71.03.1001")
-        print(single.model_dump_json(indent=2))
-
-        print("\n=== 2. Full DKI Jakarta Flood Watchlist Query Test ===")
+        print("=== Running General DKI Jakarta Weather Ingestion Test ===")
         summary = await client.fetch_all_jakarta_watchlist()
-        print(f"Total Monitored Locations : {summary.total_locations}")
-        print(f"Peak Precipitation        : {summary.max_precipitation_mm} mm")
-        print(f"Highest Risk Area         : {summary.highest_risk_area}")
+
+        print("\n" + "=" * 65)
+        print(f"Total Monitored Areas    : {summary.total_locations} sub-districts")
+        print(f"Peak Precipitation       : {summary.max_precipitation_mm} mm")
+        print(f"Highest Risk Area (Peak) : {summary.highest_risk_area}")
+        print("=" * 65)
+
+        print("\nRegional Summary:")
+        for record in summary.records:
+            print(f"- [{record.kota}] {record.kelurahan} ({record.adm4_code}): "
+                  f"Rain: {record.precipitation} mm | "
+                  f"Condition: {record.weather_desc} | "
+                  f"Temp: {record.temperature}°C | "
+                  f"Cached: {record.is_cached}")
 
     asyncio.run(run_test())

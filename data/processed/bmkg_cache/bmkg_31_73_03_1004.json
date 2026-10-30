@@ -6,10 +6,10 @@
   "latitude": -6.1461971374,
   "longitude": 106.8231366824,
   "precipitation": 0.0,
-  "temperature": 29.0,
-  "humidity": 63.0,
-  "windSpeed": 3.9,
-  "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-15T22:00:00",
+  "temperature": 30.0,
+  "humidity": 70.0,
+  "windSpeed": 5.9,
+  "weather_desc": "Sunny",
+  "timestamp": "2026-10-30T14:00:00",
   "is_cached": false
 }

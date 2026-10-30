@@ -5,11 +5,11 @@
   "kelurahan": "Kebon Baru",
   "latitude": -6.2337098463,
   "longitude": 106.8616315453,
-  "precipitation": 0.0,
-  "temperature": 29.0,
-  "humidity": 62.0,
-  "windSpeed": 4.5,
-  "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-15T22:00:00",
+  "precipitation": 1.3,
+  "temperature": 28.0,
+  "humidity": 77.0,
+  "windSpeed": 5.1,
+  "weather_desc": "Light Rain",
+  "timestamp": "2026-10-30T15:00:00",
   "is_cached": false
 }

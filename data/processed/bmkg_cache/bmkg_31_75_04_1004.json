@@ -5,11 +5,11 @@
   "kelurahan": "Batu Ampar",
   "latitude": -6.2791007105,
   "longitude": 106.8610525488,
-  "precipitation": 0.0,
-  "temperature": 28.0,
-  "humidity": 63.0,
-  "windSpeed": 3.4,
-  "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-15T22:00:00",
+  "precipitation": 1.8,
+  "temperature": 30.0,
+  "humidity": 72.0,
+  "windSpeed": 4.7,
+  "weather_desc": "Light Rain",
+  "timestamp": "2026-10-30T14:00:00",
   "is_cached": false
 }
