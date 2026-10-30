@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diluvium - Admin Dashboard</title>
+    <!-- Menghubungkan file CSS murni -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+    <!-- Simulasi Login Admin (Bab 3.7a: Admin Access and Security) -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h2>Admin Authentication</h2>
+            <input type="text" id="username" placeholder="Username (admin)" value="admin">
+            <input type="password" id="password" placeholder="Password" value="diluvium2026">
+            <button class="btn btn-primary" style="width: 100%;" onclick="authenticate()">Login Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Container Utama Dashboard -->
+    <div class="container">
+        <div class="header">
+            <h1>Diluvium AI-Based EWS — Admin Dashboard</h1>
+            <span class="badge-role">System Administrator</span>
+        </div>
+
+        <!-- Phase 1: Real-Time Telemetry & Pipeline Monitoring -->
+        <h2 class="section-title">1. Pipeline & Telemetry Monitoring (Local Cache)</h2>
+        <div class="grid-cards">
+            <div class="card blue">
+                <div class="card-label">AI Orchestrator Status</div>
+                <div class="card-value" id="aiStatus">{{ gemini_status }}</div>
+            </div>
+            <div class="card blue">
+                <div class="card-label">Gemini Token Quota</div>
+                <div class="card-value">{{ token_usage }}</div>
+            </div>
+            <div class="card green">
+                <div class="card-label">BMKG & BPBD Ingestion</div>
+                <div class="card-value">{{ api_bmkg_status }}</div>
+            </div>
+            <div class="card yellow">
+                <div class="card-label">Manggarai Gate (AWLR)</div>
+                <div class="card-value">{{ water_level_manggarai }} cm</div>
+            </div>
+            <div class="card green">
+                <div class="card-label">Katulampa Gate (AWLR)</div>
+                <div class="card-value">{{ water_level_katulampa }} cm</div>
+            </div>
+            <div class="card red">
+                <div class="card-label">Verified Siaga Status</div>
+                <div class="card-value">{{ current_siaga }}</div>
+            </div>
+        </div>
+
+        <!-- Phase 2 & 3: Manual Overrides and Diagnostics -->
+        <h2 class="section-title">2. Manual Overrides & Channel Diagnostics</h2>
+        <div class="button-group">
+            <button onclick="triggerTestAlert()" class="btn btn-primary">
+                Trigger Test Alert (Telegram / Discord)
+            </button>
+            <button onclick="triggerEmergencyFallback()" class="btn btn-danger">
+                Emergency Toggle: Non-AI Fallback
+            </button>
+        </div>
+
+        <!-- Kotak Audit Log -->
+        <div class="log-box" id="statusLog">
+            > System ready. Waiting for administrator action...
+        </div>
+    </div>
+
+    <!-- Script Komunikasi ke API Gateway -->
+    <script>
+        function authenticate() {
+            document.getElementById('loginOverlay').style.display = 'none';
+        }
+
+        async function triggerTestAlert() {
+            document.getElementById('statusLog').innerText = "> Dispatching simulated alert payload...";
+            const response = await fetch('/api/admin/test-alert', { method: 'POST' });
+            const data = await response.json();
+            document.getElementById('statusLog').innerText = "> " + data.message;
+        }
+
+        async function triggerEmergencyFallback() {
+            if (confirm("Switch pipeline directly to hardcoded fallback script?")) {
+                const response = await fetch('/api/admin/override', { method: 'POST' });
+                const data = await response.json();
+                document.getElementById('aiStatus').innerText = "Offline (Fallback Active)";
+                document.getElementById('statusLog').innerText = "> " + data.message;
+            }
+        }
+    </script>
+</body>
+</html>
