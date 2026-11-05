@@ -1,35 +1,40 @@
-import asyncio
-import json
 import logging
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, Any, List, Optional
+from fastmcp import FastMCP
+from pydantic import BaseModel
 
-import httpx
+# Import BMKG Ingestion Client
+from src.ingestion.bmkg_client import BMKGClient
 
-from src.config import (
-    BMKG_API_BASE_URL,
-    BMKG_CACHE_DIR,
-    BMKG_REQUEST_TIMEOUT,
-    BMKG_MAX_RETRIES,
-    BMKG_BASE_BACKOFF,
-    BMKG_MAX_CONCURRENT_REQUESTS,
-    JAKARTA_FLOOD_PRONE_ADM4,
-)
-from src.schemas import WeatherData, JakartaRainfallSummary
+# logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s")
+logger = logging.getLogger("Diluvium.MCPServer")
 
-logger = logging.getLogger("Diluvium.BMKGClient")
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s"
-)
+# Initialize central FastMCP server for Diluvium
+mcp = FastMCP("diluvium-mcp-server")
 
+# Instantiate the BMKG client
+bmkg_client = BMKGClient()
 
-class BMKGClient:
+# 1. INGESTION TOOLS (Data Terbuka BMKG)
+# ---------------------------------------------------------
+@mcp.tool()
+async def get_specific_area_weather(adm4_code: str = "31.75.03.1001") -> dict:
     """
-    Ingestion Agent client for fetching real-time rainfall and weather forecasts
-    in DKI Jakarta from the BMKG Open Data API (https://api.bmkg.go.id/publik/prakiraan-cuaca).
+    Fetches live rainfall telemetry and weather forecasts from BMKG for a specific 
+    Jakarta Kelurahan (adm4_code).
+    Default '31.75.03.1001' corresponds to Kampung Melayu, Jakarta Timur.
+    
+    Use this tool when you need exact precipitation (mm), temperature, or humidity 
+    for a localized risk assessment.
     """
+    logger.info(f"LLM Orchestrator requested weather for adm4: {adm4_code}")
+    try:
+        weather_data = await bmkg_client.fetch_weather_by_adm4(adm4_code)
+        # Convert to dictionary so the LLM can easily read the JSON structure
+        return weather_data.model_dump(mode="json")
+    except Exception as e:
+        logger.error(f"Failed to fetch weather tool: {e}")
+        return {"error": str(e), "adm4_code": adm4_code}
 
     def __init__(
         self,
@@ -49,18 +54,39 @@ class BMKGClient:
             "Accept": "application/json",
         }
 
-    @staticmethod
-    def _validate_jakarta_adm4(adm4_code: str) -> None:
-        """Ensures the queried adm4 code belongs strictly to DKI Jakarta Province (starts with '31.')."""
-        if not adm4_code.startswith("31."):
-            raise ValueError(
-                f"Region code '{adm4_code}' is outside DKI Jakarta! "
-                "DKI Jakarta adm4 codes must start with '31.' (e.g., '31.71.03.1001')."
-            )
+# 2. CALCULATION TOOLS (Placeholder for Irgy's GeoPandas / ML work)
+# ---------------------------------------------------------
+@mcp.tool()
+async def calculate_flood_risk(precipitation_mm: float, water_level_cm: float, area_id: str) -> dict:
+    """
+    Runs deterministic and ML hydrological models to estimate flood arrival time,
+    expected depth (cm), and inundation radius (km).
+    """
+    # TODO: Import and call Irgy's engine from src.calculation.engine once merged
+    return {
+        "area_id": area_id,
+        "estimated_arrival_hours": 2.5,
+        "predicted_depth_cm": 85.0,
+        "inundation_radius_km": 1.4,
+        "confidence_score": 0.89,
+        "status": "MOCK_DATA_PENDING_INTEGRATION"
+    }
 
-    def _get_cache_file(self, adm4_code: str) -> Path:
-        safe_name = adm4_code.replace(".", "_")
-        return self.cache_dir / f"bmkg_{safe_name}.json"
+# 3. VERIFICATION & ALERTING TOOLS (Placeholder for Irgy's Telegram Webhooks)
+# ---------------------------------------------------------
+@mcp.tool()
+async def verify_and_dispatch_alert(area_id: str, predicted_depth_cm: float, siaga_level: str) -> dict:
+    """
+    Audits predicted flood metrics against Jakarta's Siaga 1-4 thresholds and historical data,
+    then dispatches verified alerts to Telegram and Discord.
+    """
+    # TODO: Import and call Irgy's verifier from src.verification.critic once merged
+    return {
+        "verified": True,
+        "siaga_level": siaga_level,
+        "dispatched_channels": ["telegram", "discord"],
+        "status": "MOCK_DISPATCH_PENDING_INTEGRATION"
+    }
 
     def _save_cache(self, adm4_code: str, data: WeatherData) -> None:
         """Saves the latest valid weather telemetry to disk for offline fallback."""
