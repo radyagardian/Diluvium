@@ -13,8 +13,8 @@
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
             <h2>Admin Authentication</h2>
-            <input type="text" id="username" placeholder="Username (admin)" value="admin">
-            <input type="password" id="password" placeholder="Password" value="diluvium2026">
+            <input type="text" id="username" placeholder="Email Admin" value="admin@diluvium.local">
+            <input type="password" id="password" placeholder="Password" value="somppassword">
             <button class="btn btn-primary" style="width: 100%;" onclick="authenticate()">Login Dashboard</button>
         </div>
     </div>
@@ -24,6 +24,7 @@
         <div class="header">
             <h1>Diluvium AI-Based EWS — Admin Dashboard</h1>
             <span class="badge-role">System Administrator</span>
+            <button class="btn" style="float: right; padding: 5px 10px; font-size: 12px;" onclick="logout()">Logout</button>
         </div>
 
         <!-- Phase 1: Real-Time Telemetry & Pipeline Monitoring -->
@@ -74,23 +75,79 @@
 
     <!-- Script Komunikasi ke API Gateway -->
     <script>
-        function authenticate() {
-            document.getElementById('loginOverlay').style.display = 'none';
+        // Check for existing login on page load
+        window.onload = () => {
+            if (localStorage.getItem('supabase_token')) {
+                document.getElementById('loginOverlay').style.display = 'none';
+            }
+        };
+
+        async function authenticate() {
+            const email = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('supabase_token', data.access_token);
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('statusLog').innerText = "> Administrator authenticated successfully.";
+                } else {
+                    alert("Login failed: Invalid email or password.");
+                }
+            } catch (error) {
+                alert("Error: Cannot connect to the server.");
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('supabase_token');
+            document.getElementById('loginOverlay').style.display = 'flex';
+            document.getElementById('statusLog').innerText = "> Logged out.";
         }
 
         async function triggerTestAlert() {
+            const token = localStorage.getItem('supabase_token');
+            if (!token) return alert("Unauthorized: Please log in first.");
+
             document.getElementById('statusLog').innerText = "> Dispatching simulated alert payload...";
-            const response = await fetch('/api/admin/test-alert', { method: 'POST' });
-            const data = await response.json();
-            document.getElementById('statusLog').innerText = "> " + data.message;
+            
+            const response = await fetch('/api/admin/test-alert', { 
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + token }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                document.getElementById('statusLog').innerText = "> " + data.message;
+            } else {
+                document.getElementById('statusLog').innerText = "> Error: Unauthorized action blocked.";
+            }
         }
 
         async function triggerEmergencyFallback() {
+            const token = localStorage.getItem('supabase_token');
+            if (!token) return alert("Unauthorized: Please log in first.");
+
             if (confirm("Switch pipeline directly to hardcoded fallback script?")) {
-                const response = await fetch('/api/admin/override', { method: 'POST' });
-                const data = await response.json();
-                document.getElementById('aiStatus').innerText = "Offline (Fallback Active)";
-                document.getElementById('statusLog').innerText = "> " + data.message;
+                const response = await fetch('/api/admin/override', { 
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('aiStatus').innerText = "Offline (Fallback Active)";
+                    document.getElementById('statusLog').innerText = "> " + data.message;
+                } else {
+                    document.getElementById('statusLog').innerText = "> Error: Unauthorized action blocked.";
+                }
             }
         }
     </script>

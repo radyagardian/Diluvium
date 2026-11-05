@@ -1,7 +1,11 @@
 import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from supabase import create_client, Client
+
+load_dotenv()
 
 app = FastAPI()
 
