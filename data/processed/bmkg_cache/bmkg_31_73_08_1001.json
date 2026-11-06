@@ -5,11 +5,11 @@
   "kelurahan": "Kembangan Utara",
   "latitude": -6.1723239844,
   "longitude": 106.7425116005,
-  "precipitation": 0.0,
-  "temperature": 31.0,
-  "humidity": 66.0,
-  "windSpeed": 5.9,
+  "precipitation": 0.3,
+  "temperature": 28.0,
+  "humidity": 78.0,
+  "windSpeed": 4.8,
   "weather_desc": "Sunny",
-  "timestamp": "2026-10-30T14:00:00",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

@@ -1,0 +1,9 @@
+{
+  "gate_name": "Krukut Hulu",
+  "river_name": "Sungai Krukut",
+  "water_level_cm": 50.0,
+  "status_siaga": "Normal",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.606206",
+  "is_cached": false
+}

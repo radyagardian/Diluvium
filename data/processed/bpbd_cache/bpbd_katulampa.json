@@ -1,0 +1,9 @@
+{
+  "gate_name": "Katulampa",
+  "river_name": "Sungai Ciliwung Hulu",
+  "water_level_cm": 10.0,
+  "status_siaga": "Normal",
+  "trend": "FALLING",
+  "timestamp": "2026-11-06T19:00:41.602590",
+  "is_cached": false
+}

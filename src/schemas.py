@@ -50,3 +50,25 @@ class HazardPrediction(BaseModel):
     predicted_depth_cm: float = Field(..., ge=0.0, description="Predicted maximum inundation depth (cm)")
     inundation_radius_km: float = Field(..., ge=0.0, description="Estimated geographic spread radius (km)")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Statistical confidence score of the prediction")
+
+class HydrologicalData(BaseModel):
+    """
+    Pydantic data contract for BPBD DKI water level telemetry
+    (Aligned with Section 3.4 Class Diagram in the Project Report).
+    """
+    gate_name: str = Field(..., description="Name of the water gate / AWLR station")
+    river_name: str = Field(..., description="Name of the river basin")
+    water_level_cm: float = Field(..., description="Current water level in centimeters")
+    status_siaga: str = Field(..., description="Official status: Normal, Siaga 3, Siaga 2, Siaga 1")
+    trend: str = Field(default="STABLE", description="Water level trend: RISING, FALLING, or STABLE")
+    timestamp: datetime = Field(..., description="Observation timestamp")
+    is_cached: bool = Field(default=False, description="True if loaded from local cache fallback")
+
+
+class WaterGatesSummary(BaseModel):
+    """Aggregated water level summary across primary Jakarta floodgates."""
+    fetched_at: datetime
+    total_gates: int
+    highest_status: str
+    critical_gate: Optional[str] = None
+    records: List[HydrologicalData]

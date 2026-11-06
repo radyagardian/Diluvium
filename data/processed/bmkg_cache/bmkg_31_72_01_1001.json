@@ -5,11 +5,11 @@
   "kelurahan": "Penjaringan",
   "latitude": -6.1220449172,
   "longitude": 106.8000217808,
-  "precipitation": 0.0,
-  "temperature": 30.0,
-  "humidity": 71.0,
-  "windSpeed": 9.2,
+  "precipitation": 0.2,
+  "temperature": 28.0,
+  "humidity": 77.0,
+  "windSpeed": 5.5,
   "weather_desc": "Sunny",
-  "timestamp": "2026-10-30T14:00:00",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

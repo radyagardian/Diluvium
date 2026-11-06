@@ -1,0 +1,9 @@
+{
+  "gate_name": "Pulo Gadung",
+  "river_name": "Sistem Polder Pulo Gadung",
+  "water_level_cm": 300.0,
+  "status_siaga": "Normal",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.612247",
+  "is_cached": false
+}

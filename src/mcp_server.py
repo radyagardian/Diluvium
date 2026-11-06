@@ -2,7 +2,7 @@ import logging
 from fastmcp import FastMCP
 
 from src.ingestion.bmkg_client import BMKGClient
-
+from src.ingestion.bpbd_client import BPBDClient
 # Logging setup
 logging.basicConfig(
     level=logging.INFO,
@@ -15,7 +15,8 @@ mcp = FastMCP("diluvium-mcp-server")
 
 # Instantiate BMKG Client
 bmkg_client = BMKGClient()
-
+# Instantiate BPBD Client
+bpbd_client = BPBDClient()
 
 # 1. INGESTION TOOLS (Data Terbuka BMKG)
 # ---------------------------------------------------------
@@ -56,15 +57,28 @@ async def get_jakarta_flood_watchlist_summary() -> dict:
 async def get_bpbd_water_levels(gate_name: str = "Manggarai") -> dict:
     """
     Fetches real-time AWLR river water level (cm) and official Siaga status from BPBD DKI Jakarta.
+    Available gates: Katulampa, Depok, Manggarai, Karet, Pasar Ikan.
     """
-    # TODO: Connect to src.ingestion.bpbd_client once completed
-    return {
-        "gate_name": gate_name,
-        "water_level_cm": 760.0,
-        "official_status": "Siaga 3",
-        "status": "MOCK_DATA_PENDING_INTEGRATION"
-    }
+    logger.info(f"LLM Orchestrator requested BPBD water level for: {gate_name}")
+    try:
+        data = await bpbd_client.fetch_gate_level(gate_name)
+        return data.model_dump(mode="json")
+    except Exception as e:
+        logger.error(f"Failed to fetch BPBD tool: {e}")
+        return {"error": str(e), "gate_name": gate_name}
 
+@mcp.tool()
+async def get_all_bpbd_floodgates_summary() -> dict:
+    """
+    Fetches water levels across all primary Jakarta floodgates to identify the most critical river basin.
+    """
+    logger.info("LLM Orchestrator requested all BPBD floodgates summary")
+    try:
+        summary = await bpbd_client.fetch_all_primary_gates()
+        return summary.model_dump(mode="json")
+    except Exception as e:
+        logger.error(f"Failed to fetch BPBD summary tool: {e}")
+        return {"error": str(e)}
 
 # 3. CALCULATION TOOLS (Placeholder for Irgy's GeoPandas / ML work)
 # ---------------------------------------------------------

@@ -1,0 +1,9 @@
+{
+  "gate_name": "Waduk Pluit",
+  "river_name": "Polder Pluit",
+  "water_level_cm": -160.0,
+  "status_siaga": "Normal",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.608555",
+  "is_cached": false
+}

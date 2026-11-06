@@ -1,0 +1,9 @@
+{
+  "gate_name": "Pesanggrahan",
+  "river_name": "Sungai Pesanggrahan",
+  "water_level_cm": 90.0,
+  "status_siaga": "Normal",
+  "trend": "FALLING",
+  "timestamp": "2026-11-06T19:00:41.606941",
+  "is_cached": false
+}

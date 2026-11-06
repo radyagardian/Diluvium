@@ -49,3 +49,87 @@ JAKARTA_FLOOD_PRONE_ADM4 = {
     "31.75.04.1004": "Cawang, Kramat Jati, East Jakarta",
     "31.75.06.1006": "Cipinang Melayu, Makasar, East Jakarta",
 }
+
+# ==========================================
+# BPBD DKI Jakarta (Pantau Banjir AWLR) Config
+# ==========================================
+BPBD_API_BASE_URL = "https://poskobanjir.dsda.jakarta.go.id/api/v1/pintu-air"
+BPBD_CACHE_DIR = PROCESSED_DATA_DIR / "bpbd_cache"
+BPBD_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+BPBD_REQUEST_TIMEOUT = 10.0
+BPBD_MAX_RETRIES = 3
+BPBD_BASE_BACKOFF = 2.0
+
+# Official BPBD Floodgate Thresholds (in cm) for Early Warning
+# (Normal / Siaga 4, Waspada / Siaga 3, Kritis / Siaga 2, Bencana / Siaga 1)
+JAKARTA_WATER_GATES = {
+    "Katulampa": {
+        "river": "Sungai Ciliwung Hulu",
+        "normal_max": 80,
+        "siaga3_min": 81,
+        "siaga2_min": 151,
+        "siaga1_min": 201,
+        "lead_time_hours": 9.0  # Travel time of flood wave from Bogor to Manggarai
+    },
+    "Depok": {
+        "river": "Sungai Ciliwung Tengah",
+        "normal_max": 200,
+        "siaga3_min": 201,
+        "siaga2_min": 271,
+        "siaga1_min": 351,
+        "lead_time_hours": 4.5
+    },
+    "Manggarai": {
+        "river": "Sungai Ciliwung Hilir / Pintu Air Utama",
+        "normal_max": 750,
+        "siaga3_min": 751,
+        "siaga2_min": 851,
+        "siaga1_min": 951,
+        "lead_time_hours": 0.5
+    },
+    "Karet": {
+        "river": "Banjir Kanal Barat",
+        "normal_max": 450,
+        "siaga3_min": 451,
+        "siaga2_min": 551,
+        "siaga1_min": 601,
+        "lead_time_hours": 0.5
+    },
+    "Pasar Ikan": {
+        "river": "Muara / Laut Jawa (Tidal/Rob)",
+        "normal_max": 170,
+        "siaga3_min": 171,
+        "siaga2_min": 201,
+        "siaga1_min": 251,
+        "lead_time_hours": 0.0
+    },
+    "Krukut Hulu": {
+        "river": "Sungai Krukut",
+        "normal_max": 150, "siaga3_min": 151, "siaga2_min": 251, "siaga1_min": 301, "lead_time_hours": 3.0
+    },
+    "Pesanggrahan": {
+        "river": "Sungai Pesanggrahan",
+        "normal_max": 150, "siaga3_min": 151, "siaga2_min": 251, "siaga1_min": 301, "lead_time_hours": 3.0
+    },
+    "Angke Hulu": {
+        "river": "Sungai Angke",
+        "normal_max": 150, "siaga3_min": 151, "siaga2_min": 251, "siaga1_min": 301, "lead_time_hours": 3.0
+    },
+    "Waduk Pluit": {
+        "river": "Polder Pluit",
+        "normal_max": 0, "siaga3_min": 1, "siaga2_min": 50, "siaga1_min": 100, "lead_time_hours": 0.0
+    },
+    "Cipinang Hulu": {
+        "river": "Sungai Cipinang",
+        "normal_max": 150, "siaga3_min": 151, "siaga2_min": 201, "siaga1_min": 251, "lead_time_hours": 2.5
+    },
+    "Sunter Hulu": {
+        "river": "Sungai Sunter",
+        "normal_max": 150, "siaga3_min": 151, "siaga2_min": 201, "siaga1_min": 251, "lead_time_hours": 2.5
+    },
+    "Pulo Gadung": {
+        "river": "Sistem Polder Pulo Gadung",
+        "normal_max": 550, "siaga3_min": 551, "siaga2_min": 651, "siaga1_min": 751, "lead_time_hours": 1.0
+    }
+}

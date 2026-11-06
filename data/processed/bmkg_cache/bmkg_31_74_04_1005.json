@@ -5,11 +5,11 @@
   "kelurahan": "Pejaten Timur",
   "latitude": -6.2801614065,
   "longitude": 106.8482823108,
-  "precipitation": 1.8,
+  "precipitation": 0.4,
   "temperature": 28.0,
-  "humidity": 81.0,
-  "windSpeed": 7.1,
-  "weather_desc": "Light Rain",
-  "timestamp": "2026-10-30T15:00:00",
+  "humidity": 77.0,
+  "windSpeed": 4.0,
+  "weather_desc": "Sunny",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

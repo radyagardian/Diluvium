@@ -5,11 +5,11 @@
   "kelurahan": "Tanjung Duren Utara",
   "latitude": -6.1728186511,
   "longitude": 106.7832724594,
-  "precipitation": 0.0,
-  "temperature": 31.0,
-  "humidity": 67.0,
-  "windSpeed": 5.9,
+  "precipitation": 0.2,
+  "temperature": 28.0,
+  "humidity": 77.0,
+  "windSpeed": 4.8,
   "weather_desc": "Sunny",
-  "timestamp": "2026-10-30T14:00:00",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

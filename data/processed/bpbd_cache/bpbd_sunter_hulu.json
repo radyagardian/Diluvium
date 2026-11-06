@@ -1,0 +1,9 @@
+{
+  "gate_name": "Sunter Hulu",
+  "river_name": "Sungai Sunter",
+  "water_level_cm": 60.0,
+  "status_siaga": "Normal",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.611068",
+  "is_cached": false
+}

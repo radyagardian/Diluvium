@@ -5,11 +5,11 @@
   "kelurahan": "Gunung",
   "latitude": -6.2359438866,
   "longitude": 106.7927751267,
-  "precipitation": 0.0,
-  "temperature": 31.0,
-  "humidity": 68.0,
-  "windSpeed": 5.9,
-  "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-30T14:00:00",
+  "precipitation": 0.2,
+  "temperature": 28.0,
+  "humidity": 77.0,
+  "windSpeed": 4.8,
+  "weather_desc": "Sunny",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

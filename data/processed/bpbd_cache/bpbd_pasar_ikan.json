@@ -1,0 +1,9 @@
+{
+  "gate_name": "Pasar Ikan",
+  "river_name": "Muara / Laut Jawa (Tidal/Rob)",
+  "water_level_cm": 172.0,
+  "status_siaga": "Siaga 3",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.609305",
+  "is_cached": false
+}

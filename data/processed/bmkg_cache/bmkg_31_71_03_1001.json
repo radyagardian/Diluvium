@@ -5,11 +5,11 @@
   "kelurahan": "Kemayoran",
   "latitude": -6.1647214778,
   "longitude": 106.8453837867,
-  "precipitation": 0.0,
-  "temperature": 31.0,
-  "humidity": 69.0,
-  "windSpeed": 6.6,
+  "precipitation": 0.3,
+  "temperature": 28.0,
+  "humidity": 77.0,
+  "windSpeed": 4.5,
   "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-10-30T14:00:00",
+  "timestamp": "2026-11-06T19:00:00",
   "is_cached": false
 }

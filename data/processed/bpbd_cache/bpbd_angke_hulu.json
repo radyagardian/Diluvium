@@ -1,0 +1,9 @@
+{
+  "gate_name": "Angke Hulu",
+  "river_name": "Sungai Angke",
+  "water_level_cm": 40.0,
+  "status_siaga": "Normal",
+  "trend": "STABLE",
+  "timestamp": "2026-11-06T19:00:41.607784",
+  "is_cached": false
+}
