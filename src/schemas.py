@@ -30,3 +30,23 @@ class JakartaRainfallSummary(BaseModel):
     max_precipitation_mm: float
     highest_risk_area: Optional[str] = None
     records: List[WeatherData]
+
+class CalculationInput(BaseModel):
+    """
+    Input contract for the Hydrological Calculation Engine.
+    """
+    katulampa_level_cm: float = Field(..., ge=0.0, description="Water level at Katulampa gate (cm)")
+    depok_level_cm: float = Field(..., ge=0.0, description="Water level at Depok gate (cm)")
+    manggarai_level_cm: float = Field(..., ge=0.0, description="Water level at Manggarai gate (cm)")
+    rainfall_rate_mm: float = Field(..., ge=0.0, description="Current rainfall rate in the target area (mm)")
+    area_id: str = Field(..., description="Target Kelurahan (adm4) code")
+
+class HazardPrediction(BaseModel):
+    """
+    Output contract for the Calculation Agent's spatial and temporal predictions.
+    """
+    area_id: str = Field(..., description="Target Kelurahan (adm4) code")
+    estimated_arrival_hours: float = Field(..., ge=0.0, description="Estimated time until flood arrival (hours)")
+    predicted_depth_cm: float = Field(..., ge=0.0, description="Predicted maximum inundation depth (cm)")
+    inundation_radius_km: float = Field(..., ge=0.0, description="Estimated geographic spread radius (km)")
+    confidence_score: float = Field(..., ge=0.0, le=1.0, description="Statistical confidence score of the prediction")
