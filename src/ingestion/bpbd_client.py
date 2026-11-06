@@ -8,6 +8,7 @@ import re
 
 import httpx
 from bs4 import BeautifulSoup
+
 import pandas as pd
 
 from src.config import (
