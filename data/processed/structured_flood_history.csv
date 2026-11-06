@@ -1,0 +1,136 @@
+kota_administrasi,kecamatan,kelurahan,ketinggian_air,tgl_kejadian,ketinggian_maks_cm,tingkat_bahaya
+Jakarta Utara,penjaringan,kamal muara,20 s/d 30 ,2,30,Rendah
+Jakarta Barat,kalideres,kamal,10 s/d 25 ,"3, 4, 5, 18, 31",25,Rendah
+Jakarta Barat,grogol petamburan,jelambar baru,15,3,15,Rendah
+Jakarta Barat,grogol petamburan,jelambar,20,3,20,Rendah
+Jakarta Barat,kembangan,kembangan utara,5 s/d 20 ,18,20,Rendah
+Jakarta Barat,cengkareng,kapuk,5 s/d 30 ,18,30,Rendah
+Jakarta Barat,cengkareng,rawa buaya,15 s/d 20  ,18,20,Rendah
+Jakarta Barat,cengkareng,cengkareng timur,10 s/d 40 ,18,40,Rendah
+Jakarta Pusat,cempaka putih,cempaka putih timur,10 s/d 35 ,"15, 16",35,Rendah
+Jakarta Pusat,kemayoran,serdang,10 s/d 50 ,15,50,Rendah
+Jakarta Utara,penjaringan,kamal muara,5 s/d 10 ,"1, 15",10,Rendah
+Jakarta Utara,penjaringan,penjaringan,10 s/d 35 ,15,35,Rendah
+Jakarta Utara,penjaringan,kapuk muara,5 s/d 15 ,15,15,Rendah
+Jakarta Utara,cilincing,sukapura,10 s/d 50 ,"15, 16",50,Rendah
+Jakarta Utara,kelapa gading,pegangsaan dua,60 s/d 70 ,"15, 16",70,Rendah
+Jakarta Utara,koja,tugu selatan,40,"15, 16",40,Rendah
+Jakarta Barat,kalideres,tegal alur,20 s/d 30 ,"tgl, 5, 15, 17",30,Rendah
+Jakarta Barat,kalideres,kamal,30 s/d 50 ,15,50,Rendah
+Jakarta Barat,cengkareng,kapuk,5 s/d 60 ,"15, 16",60,Rendah
+Jakarta Barat,cengkareng,rawa buaya,5 s/d 30 ,15,30,Rendah
+Jakarta Barat,cengkareng,duri kosambi,10 s/d 50 ,"15, 16",50,Rendah
+Jakarta Barat,cengkareng,cengkareng barat,10 s/d 80 ,"15, 16",80,Sedang
+Jakarta Barat,cengkareng,cengkareng timur,10 s/d 80 ,"15, 16",80,Sedang
+Jakarta Barat,kembangan,kembangan utara,15 s/d 30 ,15,30,Rendah
+Jakarta Barat,kebon jeruk,duri kepa,15 s/d 60 ,15,60,Rendah
+Jakarta Barat,grogol petamburan,wijaya kusuma,10 s/d 50 ,"15, 16",50,Rendah
+Jakarta Barat,grogol petamburan,jelambar baru,10 s/d 30 ,"15, 16",30,Rendah
+Jakarta Barat,palmerah,jati pulo,30 s/d 50 ,"15, 16",50,Rendah
+Jakarta Selatan,cilandak,pondok labu,40 s/d 50 ,"5, 6",50,Rendah
+Jakarta Selatan,pancoran,pangadegan,10 s/d 300 ,"5, 6, 7, 8, 9",300,Tinggi
+Jakarta Selatan,pancoran,rawa jati,10 s/d 250 ,"5, 6, 7",250,Tinggi
+Jakarta Selatan,pasar minggu,pejaten timur,30 s/d 200 ,"5, 6, 7, 25, 26",200,Tinggi
+Jakarta Selatan,tebet,kebon baru,20 s/d 80 ,"5, 6, 7",80,Sedang
+Jakarta Selatan,tebet,manggarai,30 s/d 200 ,"5, 6, 7",200,Tinggi
+Jakarta Selatan,tebet,bukit duri,10 s/d 40 ,6,40,Rendah
+Jakarta Selatan,jagakarsa,lenteng agung,50 s/d 200 ,5,200,Tinggi
+Jakarta Selatan,jagakarsa,srengseng sawah,100 s/d 300 ,"5, 6",300,Tinggi
+Jakarta Selatan,mampang prapatan,bangka,30 s/d 40 ,"5, 6",40,Rendah
+Jakarta Timur,cakung,rawa terate,10 s/d 120 ,"3, 5, 6,15, 16, 17",120,Sedang
+Jakarta Timur,cakung,cakung barat,30 s/d 70 ,"15, 16",70,Rendah
+Jakarta Timur,cakung,jatinegara,10 s/d 30 ,15,30,Rendah
+Jakarta Timur,jatinegara,kampung melayu,10 s/d 220 ,"3, 5, 6, 7, 8, 13, 26",220,Tinggi
+Jakarta Timur,jatinegara,bidara cina,10 s/d 250 ,"5, 6, 7, 8, 9, 26",250,Tinggi
+Jakarta Timur,jatinegara,cipinang muara,10 s/d 120 ,"5, 6",120,Sedang
+Jakarta Timur,makasar,cipinang melayu,20 s/d 90 ,5,90,Sedang
+Jakarta Timur,makasar,makasar,20 s/d 50 ,"5, 6",50,Rendah
+Jakarta Timur,kramat jati,cawang,20 s/d 270 ,"5, 6, 7, 26",270,Tinggi
+Jakarta Timur,kramat jati,cililitan,30 s/d 250 ,"5, 6, 7",250,Tinggi
+Jakarta Timur,kramat jati,bale kambang,60 s/d 300 ,"5, 6, 7, 8, 9, 10",300,Tinggi
+Jakarta Timur,pasar rebo,gedong,50 s/d 150 ,"5, 6",150,Sedang
+Jakarta Timur,matraman,kebon manggis,20 s/d 80 ,"6, 7",80,Sedang
+Jakarta Selatan,pancoran,rawajati,30 - 80 ,4,80,Sedang
+Jakarta Selatan,pasar minggu,pejaten timur,Oct-50,"4, 10",50,Rendah
+Jakarta Selatan,tebet,kebon baru,30,4,30,Rendah
+Jakarta Timur,jatinegara,bidara cina,Oct-50,"4, 10",50,Rendah
+Jakarta Timur,jatinegara,kampung melayu,10 - 100 ,"4, 10, 13",100,Sedang
+Jakarta Timur,kramat jati,cawang,Oct-50,"4, 10, 13",50,Rendah
+Jakarta Timur,kramat jati,cililitan,50 - 100 ,4,100,Sedang
+Jakarta Timur,makasar,cipinang melayu,10,12,10,Rendah
+Jakarta Selatan,pesanggrahan,ulujami,20 - 30 ,22,30,Rendah
+Jakarta Timur,cakung,jatinegara,50 - 90 ,4,90,Sedang
+Jakarta Timur,cakung,penggilingan,20 - 30 ,18,30,Rendah
+Jakarta Timur,makasar,cipinang melayu,10-May,4,10,Rendah
+Jakarta Timur,pulogadung,rawamangun,20 - 50 ,4,50,Rendah
+Jakarta Timur,jatinegara,kampung melayu,May-60,"8, 10 , 17",60,Rendah
+Jakarta Timur,jatinegara,bidara cina,Oct-35,"8, 10 , 17",35,Rendah
+Jakarta Timur,kramat jati,cawang,Oct-60,"8, 10 , 17",60,Rendah
+Jakarta Barat,kalideres,kamal,20,17,20,Rendah
+Jakarta Selatan,pasar minggu,jati padang,10 s/d 40 ,3,40,Rendah
+Jakarta Selatan,pasar minggu,ragunan,10 s/d 30 ,3,30,Rendah
+Jakarta Selatan,pasar minggu,cilandak timur,10 s/d 120 ,"3, 20",120,Sedang
+Jakarta Selatan,pasar minggu,pejaten timur,10 s/d 50 ,21,50,Rendah
+Jakarta Selatan,mampang prapatan,bangka,100 s/d 150 ,3,150,Sedang
+Jakarta Selatan,pancoran,duren tiga,10 s/d 60 ,3,60,Rendah
+Jakarta Selatan,pancoran,rawajati,30 s/d 60 ,21,60,Rendah
+Jakarta Selatan,pancoran,pengadegan,10 s/d 50 ,21,50,Rendah
+Jakarta Selatan,cilandak,pondok labu,10 s/d 80 ,3,80,Sedang
+Jakarta Selatan,cilandak,cipete selatan,20 s/d 40 ,3,40,Rendah
+Jakarta Selatan,kebayoran baru,petogogan,40,3,40,Rendah
+Jakarta Selatan,tebet,kebon baru,10 s/d 20 ,21,20,Rendah
+Jakarta Timur,jatinegara,kampung melayu,10 s/d 100 ,"20, 21",100,Sedang
+Jakarta Timur,jatinegara,bidara cina,70 s/d 110 ,21,110,Sedang
+Jakarta Timur,kramat jati,cawang,10 s/d 70 ,"20, 21",70,Rendah
+Jakarta Timur,kramat jati,cililitan,10 s/d 30 ,21,30,Rendah
+Jakarta Selatan,pasar minggu,pejaten timur,10 s/d 30 ,25,30,Rendah
+Jakarta Selatan,pancoran,pengadegan,10 s/d 15 ,25,15,Rendah
+Jakarta Selatan,kebayoran lama,pondok pinang,30 s/d 60 ,25,60,Rendah
+Jakarta Selatan,kebayoran lama,cipulir,10 s/d 30 ,25,30,Rendah
+Jakarta Timur,jatinegara,kampung melayu,10 s/d 100 ,"24, 25",100,Sedang
+Jakarta Timur,jatinegara,bidara cina,50 s/d 75 ,25,75,Sedang
+Jakarta Timur,kramat jati,cawang,10 s/d 20 ,"24, 25",20,Rendah
+Jakarta Timur,kramat jati,cililitan,10 s/d 30 ,25,30,Rendah
+Jakarta Pusat,sawah besar,gunung sahari utara,10 s/d 40 ,29,40,Rendah
+Jakarta Barat,cengkareng,Rawa Buaya,20 s/d 30,29,30,Rendah
+Jakarta Timur,jatinegara,kampung melayu,30 s/d 80 ," 23, 29",80,Sedang
+Jakarta Timur,jatinegara,bidara cina,50 s/d 60 ,29,60,Rendah
+Jakarta Timur,kramat jati,cawang,10 s/d 50 ,29,50,Rendah
+Jakarta Utara,penjaringan,pluit,2 s/d 15 ," 26, 29",15,Rendah
+Jakarta Utara,penjaringan,kamal muara,5 s/d 10 ," 26, 27",10,Rendah
+Jakarta Barat,kalideres,kamal,5 s/d 30 ," 27, 28, 29",30,Rendah
+Jakarta Selatan,kebayoran lama,pondok pinang,10 s/d 20 ,9,20,Rendah
+Jakarta Selatan,pasar minggu,pejaten timur,10 s/d 30 ,12,30,Rendah
+Jakarta Selatan,pasar minggu,cilandak timur,10 s/d 30 ,28,30,Rendah
+Jakarta Selatan,cilandak,gandaria selatan,60 s/d 70 ,28,70,Rendah
+Jakarta Selatan,pesanggrahan,ulujami,40 s/d 70 ,28,70,Rendah
+Jakarta Timur,Makasar,cipinang melayu,30 s/d 50 ,11,50,Rendah
+Jakarta Timur,jatinegara,cipinang muara,60 s/d 80 ,11,80,Sedang
+Jakarta Timur,jatinegara,kampung melayu,10 s/d 100 ,12,100,Sedang
+Jakarta Timur,jatinegara,bidara cina,20 s/d 60 ,12,60,Rendah
+Jakarta Timur,ciracas,rambutan,10 s/d 30 ,11,30,Rendah
+Jakarta Timur,kramat jati,cawang,10 s/d 50 ,12,50,Rendah
+Jakarta Timur,cakung,jatinegara,10 s/d 15 ,29,15,Rendah
+Jakarta Timur,cakung,rawa terate,5 s/d 20 ,29,20,Rendah
+Jakarta Utara,penjaringan,pluit,5 s/d 10 ," 4, 5, 7",10,Rendah
+Jakarta Utara,penjaringan,kamal muara,3 s/d 10 ," 4, 5, 6, 7, 8, 11, 13",10,Rendah
+Jakarta Utara,penjaringan,penjaringan,5 s/d 10 ,7,10,Rendah
+Jakarta Barat,kalideres,kamal,6 s/d 10 ," 4, 5, 6, 11, 12",10,Rendah
+Jakarta Barat,cengkareng,rawa buaya,15 s/d 60 ,12,60,Rendah
+Jakarta Barat,cengkareng,cengkareng timur,20 s/d 30 ,12,30,Rendah
+Jakarta Barat,cengkareng,duri kosambi,10 s/d 40 ,12,40,Rendah
+Jakarta Barat,kembangan,kembangan utara,50,12,50,Rendah
+Jakarta Selatan,cilandak,cilandak barat,20 s/d 60 ,4,60,Rendah
+Jakarta Selatan,cilandak,pondok labu,20 s/d 60 ,13,60,Rendah
+Jakarta Selatan,pancoran,kalibata,30,10,30,Rendah
+Jakarta Selatan,pancoran,duren tiga,70,10,70,Rendah
+Jakarta Selatan,mampang prapatan,bangka,50 s/d 80 ," 10, 13",80,Sedang
+Jakarta Selatan,kebayoran baru,petogogan,10 s/d 40 ," 10, 12, 13",40,Rendah
+Jakarta Selatan,kebayoran baru,cipete utara,20 s/d 40 ,13,40,Rendah
+Jakarta Selatan,pasar minggu,cilandak timur,10 s/d 100 ,13,100,Sedang
+Jakarta Selatan,kebayoran lama,cipulir,30 s/d 80 ,13,80,Sedang
+Jakarta Selatan,pesanggrahan,ulujami,20 s/d 40 ,11,40,Rendah
+Jakarta Timur,cakung,rawa terate,10 s/d 100 ,3,100,Sedang
+Jakarta Timur,cakung,cakung timur,20,3,20,Rendah
+Jakarta Timur,makasar,cipinang melayu,10 s/d 30 ,6,30,Rendah
+Jakarta Timur,ciracas,rambutan,10 s/d 50,11,50,Rendah
