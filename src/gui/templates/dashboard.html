@@ -4,82 +4,390 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diluvium - Admin Dashboard</title>
-    <!-- Menghubungkan file CSS murni -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 
-    <!-- Simulasi Login Admin (Bab 3.7a: Admin Access and Security) -->
+    <!-- Admin Authentication Overlay -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
-            <h2>Admin Authentication</h2>
-            <input type="text" id="username" placeholder="Email Admin" value="admin@diluvium.local">
-            <input type="password" id="password" placeholder="Password" value="somppassword">
-            <button class="btn btn-primary" style="width: 100%;" onclick="authenticate()">Login Dashboard</button>
+            <div class="login-header">
+                <h2>Diluvium Auth</h2>
+                <p>Restricted Access</p>
+            </div>
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Admin Email" value="admin@diluvium.local">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" value="somppassword">
+            </div>
+            <button class="btn btn-primary" onclick="authenticate()">Authorize Session</button>
         </div>
     </div>
 
-    <!-- Container Utama Dashboard -->
+    <!-- Main Dashboard Container -->
     <div class="container">
-        <div class="header">
-            <h1>Diluvium AI-Based EWS — Admin Dashboard</h1>
-            <span class="badge-role">System Administrator</span>
-            <button class="btn" style="float: right; padding: 5px 10px; font-size: 12px;" onclick="logout()">Logout</button>
-        </div>
+        <!-- Header -->
+        <header class="header">
+            <div class="header-titles">
+                <h1>Diluvium AI-Based EWS</h1>
+                <span class="badge-role">System Administrator</span>
+            </div>
+            <div class="header-actions">
+                <span class="siaga-pill" id="val_siaga">{{ current_siaga }}</span>
+                <button class="btn btn-outline" onclick="logout()">Terminate Session</button>
+            </div>
+        </header>
 
         <!-- Phase 1: Real-Time Telemetry & Pipeline Monitoring -->
-        <h2 class="section-title">1. Pipeline & Telemetry Monitoring (Local Cache)</h2>
-        <div class="grid-cards">
-            <div class="card blue">
-                <div class="card-label">AI Orchestrator Status</div>
-                <div class="card-value" id="aiStatus">{{ gemini_status }}</div>
+        <section class="dashboard-section">
+            <h2 class="section-title">1. Pipeline & Telemetry Monitoring</h2>
+
+            <!-- TOP ROW: 3 KPI Cards -->
+            <div class="grid-kpi">
+                <!-- KPI 1: Peak Rainfall Intensity -->
+                <div class="card kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-title-group">
+                            <div class="kpi-icon icon-green">🌧️</div>
+                            <div>
+                                <div class="kpi-title">Peak Rainfall</div>
+                                <div class="kpi-subtitle" id="val_highest_area">{{ highest_risk_area }}</div>
+                            </div>
+                        </div>
+                        <span class="kpi-arrow">↗</span>
+                    </div>
+                    <div class="kpi-metric-row">
+                        <span class="kpi-big-num" id="val_peak_rain">{{ peak_rainfall_mm }}</span>
+                        <span class="kpi-unit">mm/3h</span>
+                        <span class="kpi-delta delta-up">↑ Live</span>
+                    </div>
+                    <div class="kpi-footer">
+                        <span class="kpi-meta" id="val_api_status">{{ api_bmkg_status }}</span>
+                        <span class="kpi-pill">BMKG API</span>
+                    </div>
+                </div>
+
+                <!-- KPI 2: Downstream Manggarai Gate -->
+                <div class="card kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-title-group">
+                            <div class="kpi-icon icon-blue">🌊</div>
+                            <div>
+                                <div class="kpi-title">Manggarai Gate</div>
+                                <div class="kpi-subtitle">Downstream AWLR</div>
+                            </div>
+                        </div>
+                        <span class="kpi-arrow">↗</span>
+                    </div>
+                    <div class="kpi-metric-row">
+                        <span class="kpi-big-num" id="val_manggarai">{{ water_level_manggarai }}</span>
+                        <span class="kpi-unit">cm</span>
+                        <span class="kpi-delta delta-warn" id="val_manggarai_pct">+{{ manggarai_pct }}% Cap</span>
+                    </div>
+                    <div class="kpi-footer">
+                        <span class="kpi-meta">Siaga 1 Limit: 850 cm</span>
+                        <span class="kpi-pill">BPBD DKI</span>
+                    </div>
+                </div>
+
+                <!-- KPI 3: Active Watchlist & Pipeline Nodes -->
+                <div class="card kpi-card">
+                    <div class="kpi-top">
+                        <div class="kpi-title-group">
+                            <div class="kpi-icon icon-pink">🛰️</div>
+                            <div>
+                                <div class="kpi-title">Monitored Areas</div>
+                                <div class="kpi-subtitle" id="aiStatus">{{ gemini_status }}</div>
+                            </div>
+                        </div>
+                        <span class="kpi-arrow">↗</span>
+                    </div>
+                    <div class="kpi-metric-row">
+                        <span class="kpi-big-num" id="val_monitored">{{ monitored_locations }}</span>
+                        <span class="kpi-unit">Kelurahan</span>
+                    </div>
+                    <div class="kpi-footer">
+                        <span class="kpi-meta">Active Agent Nodes</span>
+                        <div class="node-badges">
+                            <span class="node-dot dot-blue" title="Gemini 3 Flash">AI</span>
+                            <span class="node-dot dot-green" title="FastMCP Server">MCP</span>
+                            <span class="node-dot dot-pink" title="Telegram & Discord">BOT</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card blue">
-                <div class="card-label">Gemini Token Quota</div>
-                <div class="card-value">{{ token_usage }}</div>
+
+            <!-- BOTTOM ROW: 3 Visual Chart Cards -->
+            <div class="grid-charts">
+                <!-- Chart Card 1: Water Gate Saturation (Grouped Vertical Columns) -->
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Gate Threshold Saturation</span>
+                    </div>
+                    <div class="gate-summary-layout">
+                        <div class="gate-headline">
+                            <div class="gate-big-pct" id="val_avg_saturation">{{ avg_gate_saturation }}%</div>
+                            <div class="gate-sub">Average Siaga 1 capacity saturation</div>
+                        </div>
+                        <div class="gate-legend">
+                            <div class="legend-item">
+                                <span class="legend-dot bg-pink"></span>
+                                <div>
+                                    <div class="legend-label">Manggarai</div>
+                                    <div class="legend-val" id="leg_manggarai">{{ manggarai_pct }}%</div>
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot bg-blue"></span>
+                                <div>
+                                    <div class="legend-label">Depok</div>
+                                    <div class="legend-val" id="leg_depok">{{ depok_pct }}%</div>
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <span class="legend-dot bg-green"></span>
+                                <div>
+                                    <div class="legend-label">Katulampa</div>
+                                    <div class="legend-val" id="leg_katulampa">{{ katulampa_pct }}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="columns-stage">
+                        <div class="col-bar bar-pink" id="bar_manggarai" data-height="{{ manggarai_pct }}" style="height: 0%;">
+                            <span class="bar-pill" id="pill_manggarai">{{ water_level_manggarai }}</span>
+                        </div>
+                        <div class="col-bar bar-blue" id="bar_depok" data-height="{{ depok_pct }}" style="height: 0%;">
+                            <span class="bar-pill" id="pill_depok">{{ water_level_depok }}</span>
+                        </div>
+                        <div class="col-bar bar-green" id="bar_katulampa" data-height="{{ katulampa_pct }}" style="height: 0%;">
+                            <span class="bar-pill" id="pill_katulampa">{{ water_level_katulampa }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Card 2: Gemini Token Quota (Multi-Segment Donut + Agent Breakdown) -->
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Gemini Token Quota</span>
+                        <span class="chart-badge">RPM</span>
+                    </div>
+
+                    <div class="donut-chart-container">
+                        <div class="donut-chart" id="tokenChart">
+                            <div class="donut-inner">
+                                <span class="donut-inner-text" id="tokenText">{{ tokens_used }}</span>
+                                <span class="donut-inner-sub">/ 15,000 RPM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <span id="rawTokenData" style="display: none;">{{ token_usage }}</span>
+
+                    <div class="agent-bars">
+                        <div class="agent-bar-group">
+                            <div class="agent-bar-labels">
+                                <span>Ingestion Agent (BMKG/BPBD)</span>
+                                <span id="lbl_tok_ingest">{{ tokens_ingestion }} / 1,420</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill bg-green" id="fill_tok_ingest" style="width: 37%;"></div>
+                            </div>
+                        </div>
+                        <div class="agent-bar-group">
+                            <div class="agent-bar-labels">
+                                <span>Calculation Engine (GeoPandas)</span>
+                                <span id="lbl_tok_calc">{{ tokens_calculation }} / 1,420</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill bg-pink" id="fill_tok_calc" style="width: 43%;"></div>
+                            </div>
+                        </div>
+                        <div class="agent-bar-group">
+                            <div class="agent-bar-labels">
+                                <span>Verification Critic (Siaga 1–4)</span>
+                                <span id="lbl_tok_verify">{{ tokens_verification }} / 1,420</span>
+                            </div>
+                            <div class="progress-track">
+                                <div class="progress-fill bg-blue" id="fill_tok_verify" style="width: 20%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart Card 3: Upstream vs Downstream Trend (Dual-Line SVG Hydrograph) -->
+                <div class="card chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title">Hydrological Trend</span>
+                        <span class="chart-badge">6-Hour</span>
+                    </div>
+
+                    <div class="trend-legend-pills">
+                        <span class="trend-pill pill-dark">● Manggarai ({{ water_level_manggarai }} cm)</span>
+                        <span class="trend-pill pill-light">● Katulampa ({{ water_level_katulampa }} cm)</span>
+                    </div>
+
+                    <div class="svg-chart-box">
+                        <svg viewBox="0 0 280 120" class="line-svg">
+                            <!-- Subtle horizontal grid lines -->
+                            <line x1="0" y1="25" x2="280" y2="25" class="svg-grid" />
+                            <line x1="0" y1="60" x2="280" y2="60" class="svg-grid" />
+                            <line x1="0" y1="95" x2="280" y2="95" class="svg-grid" />
+                            <!-- Vertical focus indicator -->
+                            <line x1="168" y1="10" x2="168" y2="110" class="svg-focus-line" />
+
+                            <!-- Downstream Manggarai Curve (Blue) -->
+                            <path id="line_manggarai" d="M 10 55 C 45 40, 75 60, 112 35 C 140 20, 168 25, 210 38 C 240 45, 255 28, 270 32" fill="none" stroke="#3b82f6" stroke-width="2.5" />
+                            <circle cx="168" cy="27" r="4" fill="#3b82f6" />
+
+                            <!-- Upstream Katulampa Curve (Pink) -->
+                            <path id="line_katulampa" d="M 10 95 C 45 88, 75 75, 112 80 C 140 82, 168 78, 210 62 C 240 65, 255 68, 270 60" fill="none" stroke="#ec4899" stroke-width="2.5" />
+                            <circle cx="168" cy="78" r="4" fill="#ec4899" />
+                        </svg>
+                        <div class="x-axis-labels">
+                            <span>18:00</span>
+                            <span>19:00</span>
+                            <span>20:00</span>
+                            <span class="active-time">21:00</span>
+                            <span>22:00</span>
+                            <span>23:00</span>
+                        </div>
+                    </div>
+
+                    <div class="trend-bottom-stats">
+                        <div>
+                            <div class="stat-label">Estimated Runoff ETA</div>
+                            <div class="stat-val-row">
+                                <span class="stat-big" id="val_eta">{{ estimated_arrival_eta }}</span>
+                                <span class="kpi-delta delta-up">↑ Fast</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="stat-label">Inundation Radius</div>
+                            <div class="stat-val-row">
+                                <span class="stat-big" id="val_radius">{{ inundation_radius_km }}</span>
+                                <span class="kpi-delta delta-warn">Siaga 3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card green">
-                <div class="card-label">BMKG & BPBD Ingestion</div>
-                <div class="card-value">{{ api_bmkg_status }}</div>
-            </div>
-            <div class="card yellow">
-                <div class="card-label">Manggarai Gate (AWLR)</div>
-                <div class="card-value">{{ water_level_manggarai }} cm</div>
-            </div>
-            <div class="card green">
-                <div class="card-label">Katulampa Gate (AWLR)</div>
-                <div class="card-value">{{ water_level_katulampa }} cm</div>
-            </div>
-            <div class="card red">
-                <div class="card-label">Verified Siaga Status</div>
-                <div class="card-value">{{ current_siaga }}</div>
-            </div>
-        </div>
+        </section>
 
         <!-- Phase 2 & 3: Manual Overrides and Diagnostics -->
-        <h2 class="section-title">2. Manual Overrides & Channel Diagnostics</h2>
-        <div class="button-group">
-            <button onclick="triggerTestAlert()" class="btn btn-primary">
-                Trigger Test Alert (Telegram / Discord)
-            </button>
-            <button onclick="triggerEmergencyFallback()" class="btn btn-danger">
-                Emergency Toggle: Non-AI Fallback
-            </button>
-        </div>
+        <section class="dashboard-section">
+            <h2 class="section-title">2. Manual Overrides & Channel Diagnostics</h2>
+            <div class="button-group">
+                <button onclick="triggerTestAlert()" class="btn btn-secondary">
+                    Run Diagnostic Dispatch (Telegram/Discord)
+                </button>
+                <button onclick="triggerEmergencyFallback()" class="btn btn-danger">
+                    Engage Emergency Non-AI Fallback
+                </button>
+            </div>
+        </section>
 
-        <!-- Kotak Audit Log -->
-        <div class="log-box" id="statusLog">
-            > System ready. Waiting for administrator action...
-        </div>
+        <!-- Audit Log Terminal -->
+        <section class="dashboard-section">
+            <h2 class="section-title">System Audit Log</h2>
+            <div class="terminal-box" id="statusLog">
+                <div><span class="prompt">></span> System ready. Waiting for administrator action...</div>
+            </div>
+        </section>
     </div>
 
-    <!-- Script Komunikasi ke API Gateway -->
+    <!-- Communication & Live Telemetry Script -->
     <script>
-        // Check for existing login on page load
+        function updateTokenDonut(used, limit, ingest, calc, verify) {
+            const totalUsed = used || 1420;
+            const iPct = Math.round(((ingest || 520) / totalUsed) * 100);
+            const cPct = Math.round(((calc || 610) / totalUsed) * 100);
+            const vPct = Math.max(100 - iPct - cPct, 0);
+
+            const chartEl = document.getElementById('tokenChart');
+            if (chartEl) {
+                const stop1 = iPct;
+                const stop2 = iPct + cPct;
+                chartEl.style.background = `conic-gradient(
+                    #10b981 0% ${stop1}%,
+                    #ec4899 ${stop1}% ${stop2}%,
+                    #3b82f6 ${stop2}% 100%
+                )`;
+            }
+
+            document.getElementById('tokenText').innerText = totalUsed.toLocaleString();
+            document.getElementById('lbl_tok_ingest').innerText = `${ingest} / ${totalUsed}`;
+            document.getElementById('lbl_tok_calc').innerText = `${calc} / ${totalUsed}`;
+            document.getElementById('lbl_tok_verify').innerText = `${verify} / ${totalUsed}`;
+
+            document.getElementById('fill_tok_ingest').style.width = `${iPct}%`;
+            document.getElementById('fill_tok_calc').style.width = `${cPct}%`;
+            document.getElementById('fill_tok_verify').style.width = `${vPct}%`;
+        }
+
+        async function fetchLiveTelemetry() {
+            try {
+                const response = await fetch('/api/admin/telemetry');
+                if (!response.ok) return;
+                const data = await response.json();
+
+                document.getElementById('aiStatus').innerText = data.gemini_status;
+                document.getElementById('val_api_status').innerText = data.api_bmkg_status;
+                document.getElementById('val_peak_rain').innerText = data.peak_rainfall_mm;
+                document.getElementById('val_highest_area').innerText = data.highest_risk_area;
+                document.getElementById('val_monitored').innerText = data.monitored_locations;
+                document.getElementById('val_manggarai').innerText = data.water_level_manggarai;
+                document.getElementById('val_manggarai_pct').innerText = `+${data.manggarai_pct}% Cap`;
+                document.getElementById('val_siaga').innerText = data.current_siaga;
+                document.getElementById('val_eta').innerText = data.estimated_arrival_eta;
+                document.getElementById('val_radius').innerText = data.inundation_radius_km;
+
+                // Gate Saturation Columns
+                document.getElementById('val_avg_saturation').innerText = `${data.avg_gate_saturation}%`;
+                document.getElementById('leg_manggarai').innerText = `${data.manggarai_pct}%`;
+                document.getElementById('leg_depok').innerText = `${data.depok_pct}%`;
+                document.getElementById('leg_katulampa').innerText = `${data.katulampa_pct}%`;
+
+                document.getElementById('bar_manggarai').style.height = `${data.manggarai_pct}%`;
+                document.getElementById('bar_depok').style.height = `${data.depok_pct}%`;
+                document.getElementById('bar_katulampa').style.height = `${data.katulampa_pct}%`;
+
+                document.getElementById('pill_manggarai').innerText = data.water_level_manggarai;
+                document.getElementById('pill_depok').innerText = data.water_level_depok;
+                document.getElementById('pill_katulampa').innerText = data.water_level_katulampa;
+
+                // Token Donut + Agent Bars
+                updateTokenDonut(
+                    data.tokens_used,
+                    data.tokens_limit,
+                    data.tokens_ingestion,
+                    data.tokens_calculation,
+                    data.tokens_verification
+                );
+            } catch (err) {
+                console.error("Live telemetry poll error:", err);
+            }
+        }
+
         window.onload = () => {
             if (localStorage.getItem('supabase_token')) {
                 document.getElementById('loginOverlay').style.display = 'none';
             }
+
+            document.querySelectorAll('.col-bar[data-height]').forEach(bar => {
+            const pct = parseFloat(bar.getAttribute('data-height'));
+            if (!isNaN(pct)) {
+                bar.style.height = `${pct}%`;
+            }
+        });
+
+            updateTokenDonut(1420, 15000, 520, 610, 290);
+            fetchLiveTelemetry();
+            setInterval(fetchLiveTelemetry, 5000);
         };
 
         async function authenticate() {
@@ -97,9 +405,9 @@
                     const data = await response.json();
                     localStorage.setItem('supabase_token', data.access_token);
                     document.getElementById('loginOverlay').style.display = 'none';
-                    document.getElementById('statusLog').innerText = "> Administrator authenticated successfully.";
+                    updateLog("Administrator authenticated successfully.");
                 } else {
-                    alert("Login failed: Invalid email or password.");
+                    alert("Login failed: Invalid credentials.");
                 }
             } catch (error) {
                 alert("Error: Cannot connect to the server.");
@@ -109,25 +417,24 @@
         function logout() {
             localStorage.removeItem('supabase_token');
             document.getElementById('loginOverlay').style.display = 'flex';
-            document.getElementById('statusLog').innerText = "> Logged out.";
+            updateLog("Session terminated.");
         }
 
         async function triggerTestAlert() {
             const token = localStorage.getItem('supabase_token');
             if (!token) return alert("Unauthorized: Please log in first.");
 
-            document.getElementById('statusLog').innerText = "> Dispatching simulated alert payload...";
-            
-            const response = await fetch('/api/admin/test-alert', { 
+            updateLog("Dispatching simulated alert payload...");
+            const response = await fetch('/api/admin/test-alert', {
                 method: 'POST',
                 headers: { 'Authorization': 'Bearer ' + token }
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
-                document.getElementById('statusLog').innerText = "> " + data.message;
+                updateLog(data.message);
             } else {
-                document.getElementById('statusLog').innerText = "> Error: Unauthorized action blocked.";
+                updateLog("Error: Unauthorized action blocked.", true);
             }
         }
 
@@ -135,20 +442,31 @@
             const token = localStorage.getItem('supabase_token');
             if (!token) return alert("Unauthorized: Please log in first.");
 
-            if (confirm("Switch pipeline directly to hardcoded fallback script?")) {
-                const response = await fetch('/api/admin/override', { 
+            if (confirm("WARNING: Toggle Emergency Non-AI Fallback mode?")) {
+                const response = await fetch('/api/admin/override', {
                     method: 'POST',
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
-                
+
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('aiStatus').innerText = "Offline (Fallback Active)";
-                    document.getElementById('statusLog').innerText = "> " + data.message;
+                    const statusEl = document.getElementById('aiStatus');
+                    statusEl.innerText = data.fallback_active ? "Offline (Fallback Active)" : "Online (Gemini 3 Flash)";
+                    statusEl.classList.toggle('highlight-red', data.fallback_active);
+                    updateLog(data.message);
                 } else {
-                    document.getElementById('statusLog').innerText = "> Error: Unauthorized action blocked.";
+                    updateLog("Error: Unauthorized action blocked.", true);
                 }
             }
+        }
+
+        function updateLog(message, isError = false) {
+            const logBox = document.getElementById('statusLog');
+            const color = isError ? 'color: #ef4444;' : 'color: #a7f3d0;';
+            const newLine = document.createElement('div');
+            newLine.innerHTML = `<span class="prompt" style="${color}">></span> ${message}`;
+            logBox.appendChild(newLine);
+            logBox.scrollTop = logBox.scrollHeight;
         }
     </script>
 </body>
