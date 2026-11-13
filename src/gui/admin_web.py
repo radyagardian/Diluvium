@@ -24,6 +24,9 @@ from src.calculation.engine import (
 )
 from src.schemas import CalculationInput
 
+# Import the Gemini Orchestrator (KAN-8)
+from src.orchestrator.agent import orchestrator
+
 # Load .env variables
 load_dotenv()
 
@@ -171,10 +174,12 @@ def build_telemetry_payload() -> dict:
     else:
         siaga_status = "Siaga 4"
 
+    # Check real Gemini connection status
+    gemini_health = orchestrator.check_connection()
     gemini_status = (
         "Offline (Fallback Active)"
         if SYSTEM_STATE["fallback_active"]
-        else "Online (Gemini 3 Flash)"
+        else gemini_health["status"]
     )
 
     tokens_used = SYSTEM_STATE["tokens_used"]
