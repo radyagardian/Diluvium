@@ -37,6 +37,13 @@
                 <span class="badge-role">System Administrator</span>
             </div>
             <div class="header-actions">
+                <select id="areaSelector" onchange="fetchLiveTelemetry()"
+                    style="background: #1e293b; color: #f8fafc; border: 1px solid #334155; border-radius: 8px; padding: 6px 12px; font-size: 13px; cursor: pointer;">
+                    <option value="auto">Auto: Highest Risk</option>
+                        {% for area in available_areas %}
+                    <option value="{{ area.adm4_code }}">{{ area.label }}</option>
+                    {% endfor %}
+                </select>
                 <span class="siaga-pill" id="val_siaga">{{ current_siaga }}</span>
                 <button class="btn btn-outline" onclick="logout()">Terminate Session</button>
             </div>
@@ -237,8 +244,8 @@
                             <line x1="0" y1="25" x2="280" y2="25" class="svg-grid" />
                             <line x1="0" y1="60" x2="280" y2="60" class="svg-grid" />
                             <line x1="0" y1="95" x2="280" y2="95" class="svg-grid" />
-                            <!-- Vertical focus indicator -->
-                            <line x1="168" y1="10" x2="168" y2="110" class="svg-focus-line" />
+                           <!-- Move the vertical focus line to the latest point (x=270) -->
+                            <line x1="270" y1="10" x2="270" y2="110" class="svg-focus-line" />
 
                             <!-- Downstream Manggarai Curve (Blue) -->
                             <path id="line_manggarai" d="M 10 55 C 45 40, 75 60, 112 35 C 140 20, 168 25, 210 38 C 240 45, 255 28, 270 32" fill="none" stroke="#3b82f6" stroke-width="2.5" />
@@ -249,12 +256,12 @@
                             <circle cx="168" cy="78" r="4" fill="#ec4899" />
                         </svg>
                         <div class="x-axis-labels">
-                            <span>18:00</span>
-                            <span>19:00</span>
-                            <span>20:00</span>
-                            <span class="active-time">21:00</span>
-                            <span>22:00</span>
-                            <span>23:00</span>
+                            <span>--:--</span>
+                            <span>--:--</span>
+                            <span>--:--</span>
+                            <span>--:--</span>
+                            <span>--:--</span>
+                            <span class="active-time">Live</span>
                         </div>
                     </div>
 
@@ -331,7 +338,9 @@
 
         async function fetchLiveTelemetry() {
             try {
-                const response = await fetch('/api/admin/telemetry');
+                const selector = document.getElementById('areaSelector');
+                const selectedArea = selector ? selector.value : 'auto';
+                const response = await fetch(`/api/admin/telemetry?area_id=${encodeURIComponent(selectedArea)}`);
                 if (!response.ok) return;
                 const data = await response.json();
 
@@ -343,6 +352,8 @@
                 document.getElementById('val_manggarai').innerText = data.water_level_manggarai;
                 document.getElementById('val_manggarai_pct').innerText = `+${data.manggarai_pct}% Cap`;
                 document.getElementById('val_siaga').innerText = data.current_siaga;
+
+                // ETA & Inundation Radius
                 document.getElementById('val_eta').innerText = data.estimated_arrival_eta;
                 document.getElementById('val_radius').innerText = data.inundation_radius_km;
 
@@ -359,6 +370,21 @@
                 document.getElementById('pill_manggarai').innerText = data.water_level_manggarai;
                 document.getElementById('pill_depok').innerText = data.water_level_depok;
                 document.getElementById('pill_katulampa').innerText = data.water_level_katulampa;
+
+                // Hydrograph Legend Pills & Live SVG Curves
+                const trendPills = document.querySelectorAll('.trend-legend-pills .trend-pill');
+                if (trendPills.length >= 2) {
+                    trendPills[0].innerText = `● Manggarai (${data.water_level_manggarai} cm)`;
+                    trendPills[1].innerText = `● Katulampa (${data.water_level_katulampa} cm)`;
+                }
+                updateHydrographSVG(data.hydro_manggarai, data.hydro_katulampa, data.hydro_labels);
+                
+                const xSpans = document.querySelectorAll('.x-axis-labels span');
+                if (data.hydro_labels && xSpans.length === data.hydro_labels.length) {
+                    data.hydro_labels.forEach((lbl, idx) => {
+                        xSpans[idx].innerText = lbl;
+                    });
+                }
 
                 // Token Donut + Agent Bars
                 updateTokenDonut(
