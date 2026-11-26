@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from supabase import create_client, Client
+from src.verification.notifier import router as discord_router
 
 load_dotenv()
 
 app = FastAPI()
+app.include_router(discord_router)
 
 supabase: Client = create_client(
     os.getenv("SUPABASE_URL"),
