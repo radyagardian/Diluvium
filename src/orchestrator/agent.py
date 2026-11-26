@@ -32,7 +32,7 @@ class DiluviumOrchestrator:
 
     def __init__(self, model_name: Optional[str] = None):
         # Ganti default di bawah dengan ID model yang tadi berhasil di terminalmu
-        self.model_name = model_name or os.getenv("gemini-3.5-flash")
+        self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-3.5-flash")
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.client = genai.Client(api_key=self.api_key) if self.api_key else None
         self.calc_engine = HydrologicalCalculationEngine()
