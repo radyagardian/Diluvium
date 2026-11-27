@@ -11,28 +11,32 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import uvicorn
 
-# Ingestion Clients & Config
 from src.config import BMKG_CACHE_DIR
 from src.ingestion.bmkg_client import BMKGClient
 from src.ingestion.bpbd_client import BPBDClient
-
-# Hydrological Calculation Engine & Schemas
 from src.calculation.engine import (
     HydrologicalCalculationEngine,
     structure_historical_flood_data,
     PROCESSED_DIR,
 )
 from src.schemas import CalculationInput
-
-# Gemini Orchestrator
 from src.orchestrator.agent import DiluviumOrchestrator
 
 load_dotenv()
 
-if not (PROCESSED_DIR / "structured_flood_history.csv").exists():
+IS_VERCEL = bool(os.getenv("VERCEL"))
+TMP_BMKG_CACHE = Path("/tmp/bmkg_cache")
+if IS_VERCEL:
+    TMP_BMKG_CACHE.mkdir(parents=True, exist_ok=True)
+    ACTIVE_BMKG_CACHE_DIR = TMP_BMKG_CACHE
+else:
+    ACTIVE_BMKG_CACHE_DIR = BMKG_CACHE_DIR
+
+# Only generate the CSV locally; on Vercel the filesystem is read-only
+if not IS_VERCEL and not (PROCESSED_DIR / "structured_flood_history.csv").exists():
     structure_historical_flood_data()
 
-bmkg_client = BMKGClient()
+bmkg_client = BMKGClient(cache_dir=ACTIVE_BMKG_CACHE_DIR)
 bpbd_client = BPBDClient()
 calc_engine = HydrologicalCalculationEngine()
 orchestrator = DiluviumOrchestrator()
@@ -57,46 +61,78 @@ async def refresh_bmkg_cache_task():
     try:
         await bmkg_client.fetch_all_jakarta_watchlist()
     except Exception as e:
-        print(f"[!] Initial BMKG background poll warning: {e}")
+        print(f"[!] BMKG poll warning: {e}")
+
+
+async def poll_bpbd_once():
+    """Fetches gate levels once and appends a new point to the rolling hydrograph."""
+    try:
+        summary = await bpbd_client.fetch_all_primary_gates()
+        gate_list = (
+            getattr(summary, "records", None)
+            or getattr(summary, "gates", None)
+            or getattr(summary, "water_gates", None)
+            or getattr(summary, "data", None)
+            or []
+        )
+        if not gate_list and hasattr(summary, "model_dump"):
+            for val in summary.model_dump().values():
+                if isinstance(val, list):
+                    gate_list = val
+                    break
+
+        for gate in gate_list:
+            g = gate.model_dump() if hasattr(gate, "model_dump") else dict(gate)
+            name = str(
+                g.get("gate_name") or g.get("name") or g.get("nama_pintu_air") or ""
+            ).lower()
+            level = (
+                g.get("water_level_cm")
+                or g.get("level_cm")
+                or g.get("tinggi_air")
+                or g.get("tma")
+            )
+            if level is None:
+                continue
+            level_val = float(level)
+            if "manggarai" in name:
+                SYSTEM_STATE["manggarai_cm"] = level_val
+            elif "depok" in name:
+                SYSTEM_STATE["depok_cm"] = level_val
+            elif "katulampa" in name:
+                SYSTEM_STATE["katulampa_cm"] = level_val
+
+        now_label = datetime.now().strftime("%H:%M:%S")
+        SYSTEM_STATE["hydro_labels"] = SYSTEM_STATE["hydro_labels"][1:] + [now_label]
+        SYSTEM_STATE["hydro_manggarai"] = SYSTEM_STATE["hydro_manggarai"][1:] + [
+            round(SYSTEM_STATE["manggarai_cm"], 1)
+        ]
+        SYSTEM_STATE["hydro_katulampa"] = SYSTEM_STATE["hydro_katulampa"][1:] + [
+            round(SYSTEM_STATE["katulampa_cm"], 1)
+        ]
+    except Exception as e:
+        print(f"[!] BPBD polling warning: {e}")
 
 
 async def continuous_telemetry_poll():
     while True:
-        try:
-            summary = await bpbd_client.fetch_all_primary_gates()
-            for gate in summary.gates:
-                if gate.gate_name == "Manggarai":
-                    SYSTEM_STATE["manggarai_cm"] = gate.water_level_cm
-                elif gate.gate_name == "Depok":
-                    SYSTEM_STATE["depok_cm"] = gate.water_level_cm
-                elif gate.gate_name == "Katulampa":
-                    SYSTEM_STATE["katulampa_cm"] = gate.water_level_cm
-
-            now_label = datetime.now().strftime("%H:%M:%S")
-            SYSTEM_STATE["hydro_labels"] = SYSTEM_STATE["hydro_labels"][1:] + [now_label]
-            SYSTEM_STATE["hydro_manggarai"] = SYSTEM_STATE["hydro_manggarai"][1:] + [
-                round(SYSTEM_STATE["manggarai_cm"], 1)
-            ]
-            SYSTEM_STATE["hydro_katulampa"] = SYSTEM_STATE["hydro_katulampa"][1:] + [
-                round(SYSTEM_STATE["katulampa_cm"], 1)
-            ]
-        except Exception as e:
-            print(f"[!] BPBD polling error: {e}")
-
+        await poll_bpbd_once()
         await asyncio.sleep(5)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    asyncio.create_task(refresh_bmkg_cache_task())
-    polling_task = asyncio.create_task(continuous_telemetry_poll())
-    yield
-    polling_task.cancel()
+    if not IS_VERCEL:
+        asyncio.create_task(refresh_bmkg_cache_task())
+        polling_task = asyncio.create_task(continuous_telemetry_poll())
+        yield
+        polling_task.cancel()
+    else:
+        yield
 
 
 app = FastAPI(title="Diluvium API Backend", lifespan=lifespan)
 
-# CORS for separate Frontend (Vercel) & Local Vite Dev Server
 raw_frontend_urls = os.getenv("FRONTEND_URL", "")
 allowed_origins = [
     "http://localhost:5173",
@@ -112,7 +148,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Supabase Auth Client
 supabase_url = os.getenv("SUPABASE_URL", "")
 supabase_key = os.getenv("SUPABASE_KEY", "")
 supabase: Client = (
@@ -156,6 +191,7 @@ def format_hours_to_eta(hours: float) -> str:
 def load_cached_bmkg_records() -> list[dict]:
     records = []
     candidate_dirs = [
+        ACTIVE_BMKG_CACHE_DIR,
         BMKG_CACHE_DIR,
         PROJECT_ROOT / "data" / "cache",
         PROJECT_ROOT / ".cache",
@@ -207,7 +243,7 @@ def build_telemetry_payload(area_id: str | None = None) -> dict:
         highest_area = "Kampung Melayu, Jatinegara"
         target_area_id = "31.75.03.1001"
         monitored_count = 12
-        api_status = "Polling BMKG API..."
+        api_status = "Ready (Click Diagnostic to Poll BMKG)"
 
     manggarai_cm = round(float(SYSTEM_STATE["manggarai_cm"]), 1)
     depok_cm = round(float(SYSTEM_STATE["depok_cm"]), 1)
@@ -281,14 +317,9 @@ def build_telemetry_payload(area_id: str | None = None) -> dict:
     }
 
 
-@app.get("/")
-async def root_status():
-    return {"service": "Diluvium API Backend", "status": "online"}
-
-
 @app.get("/healthz")
 async def health_check():
-    return {"status": "ok"}
+    return {"status": "ok", "runtime": "vercel" if IS_VERCEL else "local"}
 
 
 @app.post("/api/admin/login")
@@ -311,6 +342,8 @@ async def get_live_telemetry(
     authorization: str | None = Header(default=None),
 ):
     verify_admin_token(authorization)
+    if IS_VERCEL:
+        await poll_bpbd_once()
     return build_telemetry_payload(area_id=area_id)
 
 
@@ -336,6 +369,8 @@ async def trigger_test_alert(authorization: str | None = Header(default=None)):
     verify_admin_token(authorization)
 
     await refresh_bmkg_cache_task()
+    if IS_VERCEL:
+        await poll_bpbd_once()
 
     SYSTEM_STATE["tokens_ingestion"] += 45
     SYSTEM_STATE["tokens_calculation"] += 60
