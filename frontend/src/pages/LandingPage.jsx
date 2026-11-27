@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Waves, Menu, X, Copy, Check } from 'lucide-react';
 import DottedGlowBackground from '../components/DottedGlowBackground';
 import { Menu, X, Copy, Check } from 'lucide-react';
 
