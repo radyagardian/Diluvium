@@ -1,10 +1,19 @@
 import os
 import re
+import csv
 import json
+import statistics
 from pathlib import Path
-from typing import Optional, Dict, Any
-import pandas as pd
-import geopandas as gpd
+from typing import Optional, Dict, Any, List
+
+try:
+    import pandas as pd
+    import geopandas as gpd
+    HAS_GEO_STACK = True
+except ImportError:
+    pd = None
+    gpd = None
+    HAS_GEO_STACK = False
 
 # Import kontrak data yang valid langsung dari src/schemas.py
 from src.schemas import CalculationInput, HazardPrediction
@@ -15,8 +24,6 @@ RAW_DIR = BASE_DIR / "data" / "raw"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 BMKG_CACHE_DIR = PROCESSED_DIR / "bmkg_cache"
 
-
-# note!! = masih hardcoded, ngambil contoh (tebet) kalkulasi, nunggu orchestrator jadi
 
 # =====================================================================
 # 1. FUNGSI PEMROSESAN & STRUKTURISASI DATA STATIS (KAN-19)
@@ -53,30 +60,34 @@ def structure_historical_flood_data() -> None:
     KAN-19: Membersihkan dataset CSV riwayat banjir dari Jakarta Open Data
     serta menyaring kolom yang relevan untuk model hidrologi.
     """
+    if not HAS_GEO_STACK:
+        print("[!] Pandas tidak terpasang (mode serverless); melewati pembuatan ulang CSV.")
+        return
+
     raw_csv_path = RAW_DIR / "jakarta_flood_history.csv"
     processed_csv_path = PROCESSED_DIR / "structured_flood_history.csv"
-    
+
     if raw_csv_path.exists():
         print("[1] Memproses CSV Jakarta Open Data...")
         df = pd.read_csv(raw_csv_path)
         df.columns = df.columns.str.strip().str.lower()
-        
+
         kolom_penting = [
-            'kota_administrasi', 
-            'kecamatan', 
-            'kelurahan', 
-            'ketinggian_air', 
+            'kota_administrasi',
+            'kecamatan',
+            'kelurahan',
+            'ketinggian_air',
             'tgl_kejadian'
         ]
-        
+
         # Ambil hanya kolom yang tersedia di CSV agar tidak KeyError
         kolom_tersedia = [col for col in kolom_penting if col in df.columns]
         df = df[kolom_tersedia].copy()
-        
+
         if 'ketinggian_air' in df.columns:
             df['ketinggian_maks_cm'] = df['ketinggian_air'].apply(ekstrak_max_ketinggian)
             df['tingkat_bahaya'] = df['ketinggian_maks_cm'].apply(tentukan_tingkat_bahaya)
-            
+
         PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
         df.to_csv(processed_csv_path, index=False)
         print(f"--> Selesai: {processed_csv_path}")
@@ -89,9 +100,13 @@ def process_spatial_hazard_layer() -> None:
     KAN-19: Memproses data spasial batas wilayah / bahaya banjir dari data/raw/
     dan menstandarisasi CRS ke WGS84 (EPSG:4326).
     """
+    if not HAS_GEO_STACK:
+        print("[!] GeoPandas tidak terpasang (mode serverless); melewati pemrosesan GeoJSON.")
+        return
+
     raw_geo_path = RAW_DIR / "inarisk_flood_hazard.geojson"
     processed_geo_path = PROCESSED_DIR / "structured_inarisk_hazard.geojson"
-    
+
     print("[2] Memproses data spasial bahaya banjir...")
     if raw_geo_path.exists():
         try:
@@ -104,7 +119,7 @@ def process_spatial_hazard_layer() -> None:
                 gdf.set_crs(epsg=4326, inplace=True)
             elif gdf.crs != "EPSG:4326":
                 gdf = gdf.to_crs(epsg=4326)
-                
+
             PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
             gdf.to_file(processed_geo_path, driver="GeoJSON")
             print(f"--> Selesai: {processed_geo_path}")
@@ -122,11 +137,14 @@ class HydrologicalCalculationEngine:
     """
     Mesin utama Calculation Agent untuk mengestimasi waktu kedatangan banjir (onset),
     kedalaman genangan (depth), radius sebaran, dan skor kepercayaan (confidence).
+    Mendukung mode penuh (Pandas/GeoPandas) maupun fallback Python murni untuk serverless.
     """
 
     def __init__(self):
-        self.history_df = pd.DataFrame()
-        self.hazard_gdf = gpd.GeoDataFrame()
+        self.history_df = pd.DataFrame() if HAS_GEO_STACK else None
+        self.hazard_gdf = gpd.GeoDataFrame() if HAS_GEO_STACK else None
+        self.history_rows: List[Dict[str, Any]] = []
+        self.has_spatial_data: bool = False
         self._load_reference_data()
 
     def _load_reference_data(self) -> None:
@@ -134,17 +152,42 @@ class HydrologicalCalculationEngine:
         csv_path = PROCESSED_DIR / "structured_flood_history.csv"
         geo_path = PROCESSED_DIR / "structured_inarisk_hazard.geojson"
 
-        if csv_path.exists():
-            try:
-                self.history_df = pd.read_csv(csv_path)
-            except Exception as e:
-                print(f"[!] Gagal memuat CSV historis: {e}")
+        if HAS_GEO_STACK:
+            if csv_path.exists():
+                try:
+                    self.history_df = pd.read_csv(csv_path)
+                except Exception as e:
+                    print(f"[!] Gagal memuat CSV historis: {e}")
 
-        if geo_path.exists():
-            try:
-                self.hazard_gdf = gpd.read_file(geo_path)
-            except Exception as e:
-                print(f"[!] Gagal memuat GeoJSON spasial: {e}")
+            if geo_path.exists():
+                try:
+                    self.hazard_gdf = gpd.read_file(geo_path)
+                    self.has_spatial_data = not self.hazard_gdf.empty
+                except Exception as e:
+                    print(f"[!] Gagal memuat GeoJSON spasial: {e}")
+        else:
+            # Mode ringan (tanpa pandas/geopandas) menggunakan modul standar csv
+            if csv_path.exists():
+                try:
+                    with open(csv_path, mode="r", encoding="utf-8") as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            clean_row = {
+                                k.strip().lower(): v for k, v in row.items() if k
+                            }
+                            if "ketinggian_maks_cm" in clean_row:
+                                try:
+                                    clean_row["ketinggian_maks_cm"] = float(
+                                        clean_row["ketinggian_maks_cm"]
+                                    )
+                                    self.history_rows.append(clean_row)
+                                except (ValueError, TypeError):
+                                    pass
+                except Exception as e:
+                    print(f"[!] Gagal memuat CSV historis (mode ringan): {e}")
+
+            if geo_path.exists() and geo_path.stat().st_size > 10:
+                self.has_spatial_data = True
 
     def _resolve_area_metadata(self, area_id: str) -> Dict[str, Optional[str]]:
         """
@@ -153,8 +196,10 @@ class HydrologicalCalculationEngine:
         """
         clean_code = area_id.replace(".", "_")
         cache_candidates = [
+            Path("/tmp/bmkg_cache") / f"bmkg_{clean_code}.json",
             BMKG_CACHE_DIR / f"bmkg_{clean_code}.json",
-            BASE_DIR / ".cache" / f"bmkg_{clean_code}.json"
+            BASE_DIR / "data" / "cache" / f"bmkg_{clean_code}.json",
+            BASE_DIR / ".cache" / f"bmkg_{clean_code}.json",
         ]
 
         for cache_file in cache_candidates:
@@ -163,10 +208,13 @@ class HydrologicalCalculationEngine:
                     with open(cache_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                         lokasi = data.get("lokasi", {})
-                        return {
-                            "kelurahan": lokasi.get("desa", "").strip().upper(),
-                            "kecamatan": lokasi.get("kecamatan", "").strip().upper()
-                        }
+                        kel = lokasi.get("desa") or data.get("kelurahan", "")
+                        kec = lokasi.get("kecamatan") or data.get("kecamatan", "")
+                        if kel or kec:
+                            return {
+                                "kelurahan": str(kel).strip().upper(),
+                                "kecamatan": str(kec).strip().upper(),
+                            }
                 except Exception:
                     pass
 
@@ -180,31 +228,57 @@ class HydrologicalCalculationEngine:
         """
         Mengambil baseline kedalaman banjir historis (cm) untuk area target.
         """
-        if self.history_df.empty or 'ketinggian_maks_cm' not in self.history_df.columns:
-            return 20.0  # Baseline konservatif jika data historis belum termuat
-
         meta = self._resolve_area_metadata(area_id)
         kel_target = meta.get("kelurahan")
         kec_target = meta.get("kecamatan")
 
-        # 1. Coba cocokkan berdasarkan tingkat Kelurahan
-        if 'kelurahan' in self.history_df.columns and kel_target:
-            kel_match = self.history_df[
-                self.history_df['kelurahan'].astype(str).str.strip().str.upper() == kel_target
-            ]
-            if not kel_match.empty:
-                return float(kel_match['ketinggian_maks_cm'].median())
+        if HAS_GEO_STACK:
+            if self.history_df is None or self.history_df.empty or 'ketinggian_maks_cm' not in self.history_df.columns:
+                return 20.0
 
-        # 2. Jika tidak ketemu, agregasi berdasarkan tingkat Kecamatan
-        if 'kecamatan' in self.history_df.columns and kec_target:
-            kec_match = self.history_df[
-                self.history_df['kecamatan'].astype(str).str.strip().str.upper() == kec_target
-            ]
-            if not kec_match.empty:
-                return float(kec_match['ketinggian_maks_cm'].median())
+            # 1. Coba cocokkan berdasarkan tingkat Kelurahan
+            if 'kelurahan' in self.history_df.columns and kel_target:
+                kel_match = self.history_df[
+                    self.history_df['kelurahan'].astype(str).str.strip().str.upper() == kel_target
+                ]
+                if not kel_match.empty:
+                    return float(kel_match['ketinggian_maks_cm'].median())
 
-        # 3. Default rata-rata seluruh Jakarta
-        return float(self.history_df['ketinggian_maks_cm'].median())
+            # 2. Jika tidak ketemu, agregasi berdasarkan tingkat Kecamatan
+            if 'kecamatan' in self.history_df.columns and kec_target:
+                kec_match = self.history_df[
+                    self.history_df['kecamatan'].astype(str).str.strip().str.upper() == kec_target
+                ]
+                if not kec_match.empty:
+                    return float(kec_match['ketinggian_maks_cm'].median())
+
+            # 3. Default rata-rata/median seluruh Jakarta
+            return float(self.history_df['ketinggian_maks_cm'].median())
+
+        # Mode ringan (tanpa pandas)
+        if not self.history_rows:
+            return 20.0
+
+        if kel_target:
+            kel_vals = [
+                r["ketinggian_maks_cm"]
+                for r in self.history_rows
+                if str(r.get("kelurahan", "")).strip().upper() == kel_target
+            ]
+            if kel_vals:
+                return float(statistics.median(kel_vals))
+
+        if kec_target:
+            kec_vals = [
+                r["ketinggian_maks_cm"]
+                for r in self.history_rows
+                if str(r.get("kecamatan", "")).strip().upper() == kec_target
+            ]
+            if kec_vals:
+                return float(statistics.median(kec_vals))
+
+        all_vals = [r["ketinggian_maks_cm"] for r in self.history_rows]
+        return float(statistics.median(all_vals)) if all_vals else 20.0
 
     def calculate_hazard(self, calc_input: CalculationInput) -> HazardPrediction:
         """
@@ -239,15 +313,12 @@ class HydrologicalCalculationEngine:
         # 4. Estimasi Waktu Kedatangan Air / Onset Time (jam)
         # Propagasi gelombang banjir dari Katulampa -> Depok -> Manggarai
         if manggarai_excess > 100 or calc_input.rainfall_rate_mm >= 100.0:
-            # Limpasan lokal ekstrem atau Manggarai sudah Siaga 1/2
             estimated_arrival_hours = 0.5
         elif manggarai_excess > 0 or calc_input.rainfall_rate_mm >= 50.0:
             estimated_arrival_hours = 1.5
         elif depok_excess > 50:
-            # Air kiriman sudah berada di Depok (~3-4 jam menuju hilir Jakarta)
             estimated_arrival_hours = 3.5
         elif katulampa_excess > 50:
-            # Air kiriman baru melewati bendung Katulampa Bogor (~6-9 jam menuju Jakarta)
             estimated_arrival_hours = 6.5
         else:
             estimated_arrival_hours = 9.0
@@ -256,14 +327,24 @@ class HydrologicalCalculationEngine:
         if predicted_depth_cm <= 0:
             inundation_radius_km = 0.0
         else:
-            # Skala proporsional terhadap kedalaman dan tekanan pintu air
             inundation_radius_km = round(min(5.0, max(0.2, (predicted_depth_cm / 100.0) * 1.2)), 2)
 
         # 6. Skor Kepercayaan Statistik / Confidence Score (0.0 - 1.0)
+        has_history = (
+            (self.history_df is not None and not self.history_df.empty)
+            if HAS_GEO_STACK
+            else bool(self.history_rows)
+        )
+        has_hazard = (
+            (self.hazard_gdf is not None and not self.hazard_gdf.empty)
+            if HAS_GEO_STACK
+            else self.has_spatial_data
+        )
+
         confidence = 0.65  # Base confidence
-        if not self.history_df.empty:
+        if has_history:
             confidence += 0.15
-        if not self.hazard_gdf.empty:
+        if has_hazard:
             confidence += 0.10
         if calc_input.rainfall_rate_mm > 0 or river_surge_cm > 0:
             confidence += 0.05
@@ -299,7 +380,7 @@ if __name__ == "__main__":
         depok_level_cm=270.0,
         manggarai_level_cm=860.0,
         rainfall_rate_mm=65.5,
-        area_id="31.74.01.1004"  # Contoh kode adm4 Kelurahan Tebet Timur / sekitarnya
+        area_id="31.74.01.1004"
     )
 
     prediction = engine.calculate_hazard(sample_input)
