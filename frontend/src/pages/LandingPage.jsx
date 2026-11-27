@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Waves, Menu, X, Copy, Check } from 'lucide-react';
 import DottedGlowBackground from '../components/DottedGlowBackground';
+import { Menu, X, Copy, Check } from 'lucide-react';
 
 // Replace with your Discord OAuth2 Bot Invite URL from Discord Developer Portal
-const DISCORD_INVITE_URL = '#replace-with-discord-invite';
+const DISCORD_INVITE_URL ='https://discord.com/oauth2/authorize?client_id=1575412277367275611&permissions=2147502080&integration_type=0&scope=bot+applications.commands';
 
 const NAV_LINKS = [
   { id: 'architecture', label: 'How It Works', href: '#architecture' },
@@ -129,7 +130,11 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#09090b]/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <a href="#" className="flex items-center gap-2.5 text-white">
-            <Waves className="h-5 w-5 text-sky-400" />
+            <img
+              src="/diluvium-logo.jpeg"
+              alt="Diluvium"
+              className="h-8 w-8 rounded-lg object-cover"
+            />
             <span className="text-base font-semibold tracking-tight">Diluvium</span>
           </a>
 
