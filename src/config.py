@@ -12,7 +12,10 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 BMKG_CACHE_DIR = PROCESSED_DATA_DIR / "bmkg_cache"
 
 # Ensure the local cache directory exists
-BMKG_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    BMKG_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass
 
 # BMKG API Configuration
 BMKG_API_BASE_URL = "https://api.bmkg.go.id/publik/prakiraan-cuaca"
@@ -55,7 +58,10 @@ JAKARTA_FLOOD_PRONE_ADM4 = {
 # ==========================================
 BPBD_API_BASE_URL = "https://poskobanjir.dsda.jakarta.go.id/api/v1/pintu-air"
 BPBD_CACHE_DIR = PROCESSED_DATA_DIR / "bpbd_cache"
-BPBD_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    BPBD_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+except OSError:
+    pass
 
 BPBD_REQUEST_TIMEOUT = 10.0
 BPBD_MAX_RETRIES = 3
