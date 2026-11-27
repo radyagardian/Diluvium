@@ -3,7 +3,7 @@
   "river_name": "Sungai Ciliwung Hulu",
   "water_level_cm": 10.0,
   "status_siaga": "Normal",
-  "trend": "FALLING",
-  "timestamp": "2026-11-06T19:11:52.736948",
+  "trend": "STABLE",
+  "timestamp": "2026-11-27T16:10:03.412276",
   "is_cached": false
 }

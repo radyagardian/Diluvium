@@ -1,9 +1,9 @@
 {
   "gate_name": "Manggarai",
   "river_name": "Sungai Ciliwung Hilir / Pintu Air Utama",
-  "water_level_cm": 540.0,
+  "water_level_cm": 580.0,
   "status_siaga": "Normal",
   "trend": "STABLE",
-  "timestamp": "2026-11-06T19:11:52.738702",
+  "timestamp": "2026-11-27T16:10:03.414107",
   "is_cached": false
 }

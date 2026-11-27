@@ -1,9 +1,9 @@
 {
   "gate_name": "Karet",
   "river_name": "Banjir Kanal Barat",
-  "water_level_cm": 250.0,
+  "water_level_cm": 280.0,
   "status_siaga": "Normal",
   "trend": "STABLE",
-  "timestamp": "2026-11-06T19:11:52.739072",
+  "timestamp": "2026-11-27T16:10:03.414807",
   "is_cached": false
 }

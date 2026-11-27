@@ -5,11 +5,11 @@
   "kelurahan": "Ujung Menteng",
   "latitude": -6.186276045,
   "longitude": 106.9633448127,
-  "precipitation": 0.5,
-  "temperature": 28.0,
-  "humidity": 80.0,
-  "windSpeed": 3.1,
-  "weather_desc": "Partly Cloudy",
-  "timestamp": "2026-11-06T19:00:00",
+  "precipitation": 3.2,
+  "temperature": 26.0,
+  "humidity": 91.0,
+  "windSpeed": 1.9,
+  "weather_desc": "Light Rain",
+  "timestamp": "2026-11-27T16:00:00",
   "is_cached": false
 }
