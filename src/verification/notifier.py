@@ -14,10 +14,11 @@ DISCORD_PUBLIC_KEY = os.getenv("DISCORD_PUBLIC_KEY", "")
 
 def verify_discord_signature(signature: str, timestamp: str, body: bytes) -> bool:
     """Memverifikasi tanda tangan Ed25519 dari server Discord."""
-    if not DISCORD_PUBLIC_KEY or not signature or not timestamp:
+    public_key = os.getenv("DISCORD_PUBLIC_KEY", "").strip()
+    if not public_key or not signature or not timestamp:
         return False
     try:
-        verify_key = VerifyKey(bytes.fromhex(DISCORD_PUBLIC_KEY))
+        verify_key = VerifyKey(bytes.fromhex(public_key))
         verify_key.verify(timestamp.encode() + body, bytes.fromhex(signature))
         return True
     except (BadSignatureError, ValueError):

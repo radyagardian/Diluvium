@@ -148,6 +148,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from src.verification.notifier import router as discord_router
+
+app.include_router(discord_router)
+
 supabase_url = os.getenv("SUPABASE_URL", "")
 supabase_key = os.getenv("SUPABASE_KEY", "")
 supabase: Client = (
