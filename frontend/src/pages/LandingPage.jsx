@@ -1,12 +1,75 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Waves, Menu, X, ExternalLink } from 'lucide-react';
+import { Waves, Menu, X, Copy, Check } from 'lucide-react';
 import DottedGlowBackground from '../components/DottedGlowBackground';
+
+// Replace with your Discord OAuth2 Bot Invite URL from Discord Developer Portal
+const DISCORD_INVITE_URL = '#replace-with-discord-invite';
 
 const NAV_LINKS = [
   { id: 'architecture', label: 'How It Works', href: '#architecture' },
   { id: 'setup', label: 'Bot Setup', href: '#setup' },
   { id: 'siaga', label: 'Siaga Levels', href: '#siaga' },
+];
+
+const SLASH_COMMANDS = [
+  {
+    command: '/cekbanjir',
+    arg: 'area_id:31.74.01.1004',
+    summary:
+      'Detailed flood risk prediction and BMKG rainfall forecast for a specific Kelurahan using its adm4 code (defaults to Tebet if omitted).',
+  },
+  {
+    command: '/pintuair',
+    arg: '',
+    summary:
+      'Live Tinggi Muka Air (TMA) water levels and status for Katulampa, Depok, and Manggarai floodgates.',
+  },
+  {
+    command: '/statusjakarta',
+    arg: '',
+    summary:
+      'City-wide summary of current flood potential and Siaga status across monitored DKI Jakarta areas.',
+  },
+];
+
+const COMMON_AREA_CODES = [
+  {
+    code: '31.74.01.1004',
+    area: 'Tebet',
+    region: 'South Jakarta',
+    isDefault: true,
+  },
+  {
+    code: '31.75.03.1002',
+    area: 'Kampung Melayu, Jatinegara',
+    region: 'East Jakarta',
+  },
+  {
+    code: '31.75.03.1003',
+    area: 'Bidara Cina, Jatinegara',
+    region: 'East Jakarta',
+  },
+  {
+    code: '31.75.04.1004',
+    area: 'Cawang, Kramat Jati',
+    region: 'East Jakarta',
+  },
+  {
+    code: '31.75.06.1006',
+    area: 'Cipinang Melayu, Makasar',
+    region: 'East Jakarta',
+  },
+  {
+    code: '31.74.07.1002',
+    area: 'Petogogan, Kebayoran Baru',
+    region: 'South Jakarta',
+  },
+  {
+    code: '31.71.03.1001',
+    area: 'Kemayoran',
+    region: 'Central Jakarta',
+  },
 ];
 
 const SIAGA_LEVELS = [
@@ -48,13 +111,23 @@ export default function LandingPage() {
   const [activeNav, setActiveNav] = useState('architecture');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [setupTab, setSetupTab] = useState('discord');
+  const [copiedCode, setCopiedCode] = useState(null);
+
+  const handleCopyCode = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(null), 1800);
+    } catch {
+      // Fallback ignored if clipboard permissions are restricted
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#09090b] text-zinc-100 antialiased selection:bg-sky-500/25">
       {/* Minimalist Underline Navbar */}
       <header className="sticky top-0 z-50 border-b border-white/10 bg-[#09090b]/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          {/* Brand — no "DKI JAKARTA EWS" box */}
           <a href="#" className="flex items-center gap-2.5 text-white">
             <Waves className="h-5 w-5 text-sky-400" />
             <span className="text-base font-semibold tracking-tight">Diluvium</span>
@@ -75,7 +148,7 @@ export default function LandingPage() {
                 >
                   {item.label}
                   <span
-                    className={`absolute bottom-0 left-0 right-0 h-[2px] bg-white transition-transform duration-300 origin-left ${
+                    className={`absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-white transition-transform duration-300 ${
                       isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                     }`}
                   />
@@ -85,7 +158,14 @@ export default function LandingPage() {
           </nav>
 
           {/* Right Action */}
-          <div className="hidden w-20 items-center md:block">
+          <div className="hidden items-center md:flex">
+            <Link
+              to="/admin"
+              className="group relative py-1 text-sm font-medium text-zinc-300 transition-colors hover:text-white"
+            >
+              Admin Login
+              <span className="absolute bottom-0 left-0 right-0 h-[1px] origin-left scale-x-0 bg-zinc-300 transition-transform duration-300 group-hover:scale-x-100" />
+            </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -140,7 +220,7 @@ export default function LandingPage() {
 
         <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-16 px-6 py-24 lg:grid-cols-12 lg:py-32">
           <div className="lg:col-span-7">
-            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl leading-[1.08]">
+            <h1 className="text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
               Hyper-local flood warnings for Jakarta,{' '}
               <span className="text-sky-400">hours before impact.</span>
             </h1>
@@ -148,17 +228,9 @@ export default function LandingPage() {
             <p className="mt-6 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
               Diluvium monitors upstream river gates (Katulampa, Depok, Manggarai) and
               Kelurahan-level BMKG rainfall, computes projected arrival time and depth, and
-              delivers verified <span className="text-zinc-200">Siaga 1–4</span> alerts to
-              Discord and Telegram.
+              delivers verified <span className="text-zinc-200">Siaga 1–4</span> alerts
+              directly to Discord.
             </p>
-
-            {/* Single CTA Button — Uiverse loud-chicken-53 without arrow */}
-            <div className="mt-10">
-              <a href="#setup" className="invite-btn">
-                <span className="circle" />
-                <span className="text">Invite Diluvium</span>
-              </a>
-            </div>
           </div>
 
           {/* Minimal Live Alert Preview */}
@@ -254,7 +326,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Setup Guide: Discord & Telegram */}
+      {/* Setup Guide: Discord Bot & Slash Commands */}
       <section id="setup" className="border-y border-white/10 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="flex flex-col justify-between gap-6 border-b border-white/10 pb-6 md:flex-row md:items-end">
@@ -271,20 +343,20 @@ export default function LandingPage() {
             <div className="flex gap-8">
               {[
                 { id: 'discord', label: 'Discord Bot' },
-                { id: 'telegram', label: 'Telegram Channel' },
+                { id: 'commands', label: 'Slash Commands' },
               ].map((tab) => {
                 const active = setupTab === tab.id;
                 return (
                   <button
                     key={tab.id}
                     onClick={() => setSetupTab(tab.id)}
-                    className={`relative pb-2 text-sm font-medium transition-colors cursor-pointer ${
+                    className={`relative cursor-pointer pb-2 text-sm font-medium transition-colors ${
                       active ? 'text-white' : 'text-zinc-500 hover:text-zinc-200'
                     }`}
                   >
                     {tab.label}
                     <span
-                      className={`absolute bottom-0 left-0 right-0 h-[2px] bg-sky-400 transition-transform duration-300 origin-left ${
+                      className={`absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-sky-400 transition-transform duration-300 ${
                         active ? 'scale-x-100' : 'scale-x-0'
                       }`}
                     />
@@ -301,7 +373,7 @@ export default function LandingPage() {
                   {
                     step: '01',
                     title: 'Invite the Diluvium Bot',
-                    body: 'Add the bot to your Discord server and grant Send Messages and Embed Links permissions.',
+                    body: 'Add Diluvium EWS to your Discord server and grant Send Messages and Embed Links permissions.',
                   },
                   {
                     step: '02',
@@ -310,12 +382,12 @@ export default function LandingPage() {
                   },
                   {
                     step: '03',
-                    title: 'Subscribe or Query Live Telemetry',
-                    body: 'Use deterministic slash commands to check flood status directly in Python without consuming AI quota.',
+                    title: 'Query Live Telemetry with Slash Commands',
+                    body: 'Run /cekbanjir, /pintuair, or /statusjakarta directly in any channel for real-time Jakarta flood telemetry.',
                   },
                 ].map((item) => (
                   <div key={item.step} className="flex gap-5">
-                    <span className="font-mono text-xs text-zinc-500 pt-1">{item.step}</span>
+                    <span className="pt-1 font-mono text-xs text-zinc-500">{item.step}</span>
                     <div>
                       <h3 className="text-base font-medium text-white">{item.title}</h3>
                       <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{item.body}</p>
@@ -323,103 +395,143 @@ export default function LandingPage() {
                   </div>
                 ))}
 
+                {/* Fancy Invite Diluvium CTA (moved from Hero) */}
                 <div className="pt-2">
                   <a
-                    href="#replace-with-discord-invite"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/5"
+                    href={DISCORD_INVITE_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="invite-btn"
                   >
-                    Add to Discord
-                    <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
+                    <span className="circle" />
+                    <span className="text">Invite Diluvium</span>
                   </a>
                 </div>
               </div>
 
               <div className="lg:col-span-5">
                 <div className="rounded-2xl border border-white/10 bg-[#0c0c0f] p-6">
-                  <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                    Slash Commands
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                      Slash Commands
+                    </p>
+                    <button
+                      onClick={() => setSetupTab('commands')}
+                      className="cursor-pointer text-xs text-sky-400 transition hover:text-sky-300"
+                    >
+                      View Area Codes →
+                    </button>
+                  </div>
                   <div className="mt-5 divide-y divide-white/10 font-mono text-xs">
-                    <div className="pb-4">
-                      <span className="text-sky-400">/siaga</span>
-                      <p className="mt-1 font-sans text-zinc-400">
-                        Live Katulampa, Depok, and Manggarai AWLR heights and current Siaga tier.
-                      </p>
-                    </div>
-                    <div className="py-4">
-                      <span className="text-sky-400">/cekbanjir</span>{' '}
-                      <span className="text-zinc-500">kelurahan:Kampung Melayu</span>
-                      <p className="mt-1 font-sans text-zinc-400">
-                        BMKG rainfall forecast and predicted flood depth for a specific Kelurahan.
-                      </p>
-                    </div>
-                    <div className="pt-4">
-                      <span className="text-sky-400">/subscribe</span>{' '}
-                      <span className="text-zinc-500">channel:#flood-alerts</span>
-                      <p className="mt-1 font-sans text-zinc-400">
-                        Registers the channel for automated Siaga 1–3 threshold broadcasts.
-                      </p>
-                    </div>
+                    {SLASH_COMMANDS.map((cmd, index) => (
+                      <div
+                        key={cmd.command}
+                        className={
+                          index === 0
+                            ? 'pb-4'
+                            : index === SLASH_COMMANDS.length - 1
+                            ? 'pt-4'
+                            : 'py-4'
+                        }
+                      >
+                        <span className="text-sky-400">{cmd.command}</span>
+                        {cmd.arg && <span className="ml-2 text-zinc-500">{cmd.arg}</span>}
+                        <p className="mt-1 font-sans text-zinc-400">{cmd.summary}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
           ) : (
             <div className="mt-12 grid gap-12 lg:grid-cols-12">
-              <div className="space-y-8 lg:col-span-7">
-                {[
-                  {
-                    step: '01',
-                    title: 'Join the Diluvium Telegram Channel',
-                    body: 'Subscribe to the broadcast channel for instant push alerts when Jakarta gates cross Siaga 3 or higher.',
-                  },
-                  {
-                    step: '02',
-                    title: 'Keep Notifications Enabled',
-                    body: 'Unmute the channel so overnight upstream surges from Katulampa reach you immediately.',
-                  },
-                  {
-                    step: '03',
-                    title: 'Optional: Query @DiluviumEWSBot',
-                    body: 'Send /start to check real-time BMKG rainfall for your Kelurahan on demand.',
-                  },
-                ].map((item) => (
-                  <div key={item.step} className="flex gap-5">
-                    <span className="font-mono text-xs text-zinc-500 pt-1">{item.step}</span>
-                    <div>
-                      <h3 className="text-base font-medium text-white">{item.title}</h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{item.body}</p>
+              {/* Left: Detailed Slash Command Usage */}
+              <div className="space-y-8 lg:col-span-6">
+                {SLASH_COMMANDS.map((cmd, index) => (
+                  <div key={cmd.command} className="flex gap-5">
+                    <span className="pt-1 font-mono text-xs text-zinc-500">
+                      0{index + 1}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2 font-mono text-sm">
+                        <span className="font-semibold text-sky-400">{cmd.command}</span>
+                        {cmd.arg && (
+                          <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-xs text-zinc-300">
+                            {cmd.arg}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+                        {cmd.summary}
+                      </p>
                     </div>
                   </div>
                 ))}
 
-                <div className="pt-2">
-                  <a
-                    href="#replace-with-telegram-link"
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 px-5 py-2.5 text-sm font-medium text-white transition hover:border-white/40 hover:bg-white/5"
-                  >
-                    Join Telegram Channel
-                    <ExternalLink className="h-3.5 w-3.5 text-zinc-400" />
-                  </a>
+                <div className="rounded-xl border border-white/10 bg-[#0c0c0f] p-4 text-xs leading-relaxed text-zinc-400">
+                  <span className="font-medium text-zinc-200">Tip:</span> Running{' '}
+                  <code className="rounded bg-white/5 px-1.5 py-0.5 font-mono text-sky-400">
+                    /cekbanjir
+                  </code>{' '}
+                  without an <code className="font-mono text-zinc-200">area_id</code>{' '}
+                  automatically checks <span className="text-zinc-200">Tebet (31.74.01.1004)</span>.
+                  Click any code on the right to copy it.
                 </div>
               </div>
 
-              <div className="lg:col-span-5">
+              {/* Right: Common Jakarta BMKG adm4 Area Codes */}
+              <div className="lg:col-span-6">
                 <div className="rounded-2xl border border-white/10 bg-[#0c0c0f] p-6">
-                  <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
-                    Channel Highlights
-                  </p>
-                  <ul className="mt-5 space-y-4 text-sm text-zinc-400">
-                    <li className="border-b border-white/10 pb-4">
-                      Low-bandwidth delivery during heavy storm network congestion.
-                    </li>
-                    <li className="border-b border-white/10 pb-4">
-                      One-tap subscription with zero bot configuration needed.
-                    </li>
-                    <li>
-                      Verified against BPBD thresholds prior to broadcast.
-                    </li>
-                  </ul>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-widest text-zinc-500">
+                        Common BMKG adm4 Area Codes
+                      </p>
+                      <p className="mt-1 text-xs text-zinc-400">
+                        Use with <code className="font-mono text-sky-400">/cekbanjir area_id</code>
+                      </p>
+                    </div>
+                    <span className="font-mono text-[11px] text-zinc-500">DKI Jakarta</span>
+                  </div>
+
+                  <div className="mt-2 divide-y divide-white/10">
+                    {COMMON_AREA_CODES.map((item) => {
+                      const isCopied = copiedCode === item.code;
+                      return (
+                        <div
+                          key={item.code}
+                          className="flex items-center justify-between gap-4 py-3"
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="truncate text-sm font-medium text-zinc-200">
+                                {item.area}
+                              </span>
+                              {item.isDefault && (
+                                <span className="rounded-full border border-sky-400/30 bg-sky-400/10 px-2 py-0.5 text-[10px] font-medium text-sky-400">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-zinc-500">{item.region}</p>
+                          </div>
+
+                          <button
+                            onClick={() => handleCopyCode(item.code)}
+                            title="Copy adm4 code"
+                            className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5 font-mono text-xs text-zinc-300 transition hover:border-sky-400/40 hover:text-white"
+                          >
+                            <span>{item.code}</span>
+                            {isCopied ? (
+                              <Check className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5 text-zinc-500" />
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -479,6 +591,9 @@ export default function LandingPage() {
             >
               GitHub
             </a>
+            <Link to="/admin" className="transition hover:text-zinc-200">
+              Admin Login
+            </Link>
           </div>
         </div>
       </footer>
